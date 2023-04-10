@@ -22,7 +22,7 @@ propagate.set_global_textmap(B3MultiFormat())
 
 trace.set_tracer_provider(
     TracerProvider(
-        resource=Resource.create({SERVICE_NAME: "cp1"})
+        resource=Resource.create({SERVICE_NAME: "e2e"})
     )
 )
 tracer = trace.get_tracer(__name__)

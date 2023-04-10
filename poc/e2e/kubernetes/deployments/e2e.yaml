@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: poc-e2e
+  namespace: poc-e2e
+  labels:
+    app: poc-e2e
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: poc-e2e
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: poc-e2e
+        version: v1
+    spec:
+      containers:
+      - name: poc-e2e
+        image: "poc-e2e:latest"
+        imagePullPolicy: "Never"
+        env:
+          - name: nspace
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+            value: http://jaeger-collector.istio-system.svc:14268/api/traces
+        ports:
+        - containerPort: 5566

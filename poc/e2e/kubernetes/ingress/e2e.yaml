@@ -1,0 +1,38 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: poc-e2e
+  namespace: poc-e2e
+spec:
+  selector:
+    istio: ingressgateway # use Istio's default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "poc-e2e.dtp.com"
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: poce2evirtualservice
+  namespace: poc-e2e
+spec:
+  hosts:
+  - "poc-e2e.dtp.com"
+  gateways:
+  - poc-e2e
+  http:
+  - match:
+    - uri:
+        prefix: /home
+    - uri:
+        prefix: /rolldice
+    route:
+    - destination:
+        port:
+          number: 5566
+        host: poc-e2e.default.svc.cluster.local  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
