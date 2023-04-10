@@ -1,7 +1,9 @@
 # dtp-final-project
 
-
 ## Environment Setups
+> Docker, Minikube, and istioctl are expected to be pre-installed at your local environment;
+> Then the rest deployment steps are fully covered in `deploy.sh`.
+
 1. install Docker
 
 2. install Minikube
@@ -22,7 +24,7 @@ cat ~/.minikube/config/config.json
 
 4. start a multi-node minikube cluster
 ```shell
-minikube start --nodes 3 -p poc-e2e
+minikube start -p poc-e2e
 ```
 
 5. set active profile to poc-e2e
@@ -37,42 +39,43 @@ minikube profile poc-e2e
 > 
 > https://kishoreteach.medium.com/set-up-istio-on-minikube-in-5-steps-get-sample-application-up-and-running-8396daf30dd6
 
-7. enable required addons
+given istioctl installed:
 ```shell
-minikube addons enable dashboard
+istioctl install --set profile=default -y
+```
+
+7. install Istio addons
+```shell
+# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/prometheus.yaml
+kubectl apply -f kubernetes/addons/prometheus.yaml
+# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/grafana.yaml
+kubectl apply -f kubernetes/addons/grafana.yaml
+# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/jaeger.yaml
+kubectl apply -f kubernetes/addons/jaeger.yaml
+# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/kiali.yaml
+kubectl apply -f kubernetes/addons/kiali.yaml
+```
+
+8. enable required addons
+```shell
+minikube -p poc-e2e addons enable dashboard
 minikube -p poc-e2e addons enable metrics-server
-minikube addons enable registry
-minikube addons enable istio
+minikube -p poc-e2e addons enable istio
 ```
 
-## Build Docker Image
-
-### Docker at Local
+## App Build
 ```shell
-eval $(minikube docker-env)
-docker build -t poc-e2e .
+eval $(minikube -p poc-e2e docker-env)
+docker build -t poc-e2e ./app
 ```
 
-### Minikube
+## App Deployment
 ```shell
-minikube image build -t poc-e2e .
-```
-
-## Deployment Steps
-```shell
-# wget -P addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/prometheus.yaml
-# kubectl apply -f addons/prometheus.yaml
-# wget -P addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/grafana.yaml
-# kubectl apply -f addons/grafana.yaml
-# wget -P addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/jaeger.yaml
-# kubectl apply -f addons/jaeger.yaml
-# wget -P addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/kiali.yaml
-# kubectl apply -f addons/kiali.yaml
-kubectl apply -f namespace/e2e.yaml
-kubectl apply -f services/e2e.yaml
-kubectl apply -f deployments/e2e.yaml
-kubectl apply -f deployments/e2e.yaml
-kubectl apply -f ingress/e2e.yaml
+kubectl apply -f kubernetes/namespace/e2e.yaml
+kubectl apply -f kubernetes/services/e2e.yaml
+kubectl apply -f kubernetes/deployments/e2e.yaml
+kubectl apply -f kubernetes/deployments/e2e.yaml
+kubectl apply -f kubernetes/ingress/e2e.yaml
 ```
 
 ## Test at Local
@@ -100,13 +103,13 @@ docker run -p 4317:4317 \
 kubectl describe pod $pod_name
 kubectl logs $pod_name
 kubectl exec -it $pod_name -- bin/bash
-kubectl describe limits mylimits --namespace=poc-e2e
 ```
 
 
 ## TODO
 1. install elasticsearch on minikube
 1. figure out trace aggregation
+1. evaluate suitable service type
 1. configure per-container cpu/memory limits
 
 
