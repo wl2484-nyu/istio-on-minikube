@@ -1,0 +1,7 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: elastic-system
+  labels:
+    name: elastic-system
+    istio-injection: enabled
