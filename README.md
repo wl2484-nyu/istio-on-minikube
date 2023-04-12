@@ -1,4 +1,4 @@
-# Per Request Type Performance Profiling with Distributed Tracing
+# Per Request Type Performance Profiling
 
 ## Introduction
 TBA
