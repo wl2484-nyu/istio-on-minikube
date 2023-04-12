@@ -1,6 +1,7 @@
-kind: Namespace
 apiVersion: v1
+kind: Namespace
 metadata:
   name: poc-e2e
   labels:
     name: poc-e2e
+    istio-injection: enabled
