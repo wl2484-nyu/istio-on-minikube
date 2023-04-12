@@ -28,7 +28,7 @@ spec:
     - destination:
         port:
           number: {{ ((index .Values.apps 0)).containerPort }}
-        host: {{ printf "%s%s" ((index .Values.services 0)).name ".default.svc.cluster.local" }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+        host: {{ ((index .Values.services 0)).host }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
   - match:
     - uri:
         prefix: {{ ((index .Values.services 1)).prefix }}
@@ -36,4 +36,4 @@ spec:
     - destination:
         port:
           number: {{ ((index .Values.apps 1)).containerPort }}
-        host: {{ printf "%s%s" ((index .Values.services 1)).name ".default.svc.cluster.local" }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+        host: {{ ((index .Values.services 1)).host }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
