@@ -1,16 +1,16 @@
-# dtp-final-project
+# Per Request Type Performance Profiling with Distributed Tracing
 
-## Environment Setups
+## Introduction
+TBA
 
+## Design
+TBA
+
+## Setups
 > Docker, Minikube, istioctl, and helm are expected to be installed at your local environment.
 > Then the rest build and deployment steps can be fully covered in `deploy.sh`.
 
-```shell
-minikube status
-```
-
-4. configure default Minikube cpu & memory (default 2 cpu & 2GB mem) to align with requirements for Istio
-
+1. configure default Minikube cpu & memory (default 2 cpu & 2GB mem) to align with requirements for Istio
 > https://stackoverflow.com/questions/52199737/minikube-default-cpu-memory
 
 ```shell
@@ -19,20 +19,17 @@ minikube config set memory 10240
 cat ~/.minikube/config/config.json
 ```
 
-4. start a multi-node minikube cluster
-
+2. start a multi-node minikube cluster
 ```shell
 minikube start -p poc-e2e
 ```
 
-5. set active profile to poc-e2e
-
+3. set active profile to poc-e2e
 ```shell
 minikube profile poc-e2e
 ```
 
-6. install Istio on Minikube
-
+4. install Istio on Minikube
 > useful refs:
 >
 > https://kubebyexample.com/learning-paths/istio/install
@@ -40,13 +37,11 @@ minikube profile poc-e2e
 > https://kishoreteach.medium.com/set-up-istio-on-minikube-in-5-steps-get-sample-application-up-and-running-8396daf30dd6
 
 given istioctl installed:
-
 ```shell
 istioctl install --set profile=default -y
 ```
 
-7. install Istio addons
-
+5. install Istio addons
 ```shell
 # wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/prometheus.yaml
 kubectl apply -f kubernetes/addons/prometheus.yaml
@@ -58,35 +53,79 @@ kubectl apply -f kubernetes/addons/jaeger.yaml
 kubectl apply -f kubernetes/addons/kiali.yaml
 ```
 
-8. enable required addons
-
+6. enable required addons
 ```shell
 minikube -p poc-e2e addons enable dashboard
 minikube -p poc-e2e addons enable metrics-server
 minikube -p poc-e2e addons enable istio
 ```
 
-## App Build
-
+## Build
 ```shell
 eval $(minikube -p poc-e2e docker-env)
 docker build -t poc-e2e ./app
 ```
 
-## App Deployment
+## Deployment
 
+### Create Minikube Cluster
 ```shell
-kubectl apply -f kubernetes/namespace/e2e.yaml
-kubectl apply -f kubernetes/services/e2e.yaml
-kubectl apply -f kubernetes/deployments/e2e.yaml
-kubectl apply -f kubernetes/deployments/e2e.yaml
-kubectl apply -f kubernetes/ingress/e2e.yaml
+PROFILE=poc-e2e
+
+# create cluster
+minikube profile $PROFILE
+minikube delete
+minikube start -p $PROFILE
+
+# default active profile to $APP
+minikube profile $PROFILE
+```
+
+### Deploy Infra
+```shell
+PROFILE=poc-e2e
+
+# install istio
+istioctl install --set profile=default -y
+
+# install istio dashboard addons
+kubectl apply -f kubernetes/addons/prometheus.yaml
+kubectl apply -f kubernetes/addons/grafana.yaml
+kubectl apply -f kubernetes/addons/jaeger.yaml
+kubectl apply -f kubernetes/addons/kiali.yaml
+
+# enable addons
+minikube -p $PROFILE addons enable dashboard
+minikube -p $PROFILE addons enable metrics-server
+minikube -p $PROFILE addons enable istio
+
+# create namespace
+kubectl apply -f kubernetes/namespace/poc-e2e.yaml
+```
+
+### Deploy App
+```shell
+APP=poc-e2e
+NS=poc-e2e
+
+# uninstall app
+helm uninstall $APP --namespace $NS
+sleep 5
+
+# package app
+mkdir -p charts/$APP/package
+PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace $NS | cut -d':' -f2 | xargs`
+
+# label node
+#kubectl label nodes $PROFILE node-affinity=true
+
+# deploy app
+helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
 ```
 
 ## Test at Local
 
 ### App
-
 ```shell
 cd app
 docker build -t poc-e2e .
@@ -105,7 +144,6 @@ docker run -p 4317:4317 \
 ```
 
 ## Useful Debugging CMDs
-
 ```shell
 kubectl describe pod $pod_name
 kubectl logs $pod_name
