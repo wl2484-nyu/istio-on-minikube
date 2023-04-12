@@ -6,8 +6,8 @@ TBA
 ## Design
 TBA
 
-## Setups
-> Docker, Minikube, istioctl, and helm are expected to be installed at your local environment.
+## Requirements
+> Docker, Minikube, istioctl, and helm are required to be installed at your local.
 > Then the rest build and deployment steps can be fully covered in `deploy.sh`.
 
 1. configure default Minikube cpu & memory (default 2 cpu & 2GB mem) to align with requirements for Istio
@@ -17,47 +17,6 @@ TBA
 minikube config set cpus 4
 minikube config set memory 10240
 cat ~/.minikube/config/config.json
-```
-
-2. start a multi-node minikube cluster
-```shell
-minikube start -p poc-e2e
-```
-
-3. set active profile to poc-e2e
-```shell
-minikube profile poc-e2e
-```
-
-4. install Istio on Minikube
-> useful refs:
->
-> https://kubebyexample.com/learning-paths/istio/install
->
-> https://kishoreteach.medium.com/set-up-istio-on-minikube-in-5-steps-get-sample-application-up-and-running-8396daf30dd6
-
-given istioctl installed:
-```shell
-istioctl install --set profile=default -y
-```
-
-5. install Istio addons
-```shell
-# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/prometheus.yaml
-kubectl apply -f kubernetes/addons/prometheus.yaml
-# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/grafana.yaml
-kubectl apply -f kubernetes/addons/grafana.yaml
-# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/jaeger.yaml
-kubectl apply -f kubernetes/addons/jaeger.yaml
-# wget -P kubernetes/addons https://raw.githubusercontent.com/istio/istio/release-1.17/samples/addons/kiali.yaml
-kubectl apply -f kubernetes/addons/kiali.yaml
-```
-
-6. enable required addons
-```shell
-minikube -p poc-e2e addons enable dashboard
-minikube -p poc-e2e addons enable metrics-server
-minikube -p poc-e2e addons enable istio
 ```
 
 ## Build
