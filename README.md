@@ -2,14 +2,8 @@
 
 ## Environment Setups
 
-> Docker, Minikube, and istioctl are expected to be pre-installed at your local environment;
-> Then the rest deployment steps are fully covered in `deploy.sh`.
-
-1. install Docker
-
-2. install Minikube
-
-3. check Minikube status first
+> Docker, Minikube, istioctl, and helm are expected to be installed at your local environment.
+> Then the rest build and deployment steps can be fully covered in `deploy.sh`.
 
 ```shell
 minikube status
@@ -72,9 +66,7 @@ minikube -p poc-e2e addons enable metrics-server
 minikube -p poc-e2e addons enable istio
 ```
 
-9. install Helm
-
-10. install elasticsearch
+9. install elasticsearch
 > https://www.bogotobogo.com/DevOps/Docker/Docker_Kubernetes_ElasticSearch_with_Helm_minikube.php
 ```shell
 helm repo add elastic https://Helm.elastic.co
@@ -101,7 +93,7 @@ helm upgrade -i elasticsearch elastic/elasticsearch -f kubernetes/elasticsearch/
 #     $ helm --namespace=default test elasticsearch
 ```
 
-11. install kibana
+10. install kibana
 > suggestions for installation failure: https://lightrun.com/answers/elastic-helm-charts-error-while-installing-kibana-851
 
 ```shell
@@ -122,7 +114,7 @@ helm upgrade -i kibana elastic/kibana
 #     $ kubectl get secrets --namespace=default kibana-kibana-es-token -ojsonpath='{.data.token}' | base64 -d
 ```
 
-12. install metricbeat
+11. install metricbeat
 ```shell
 helm upgrade -i metricbeat elastic/metricbeat
 #   Release "metricbeat" does not exist. Installing it now.
