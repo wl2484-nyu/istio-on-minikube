@@ -2,14 +2,8 @@
 
 ## Environment Setups
 
-> Docker, Minikube, and istioctl are expected to be pre-installed at your local environment;
-> Then the rest deployment steps are fully covered in `deploy.sh`.
-
-1. install Docker
-
-2. install Minikube
-
-3. check Minikube status first
+> Docker, Minikube, istioctl, and helm are expected to be installed at your local environment.
+> Then the rest build and deployment steps can be fully covered in `deploy.sh`.
 
 ```shell
 minikube status
@@ -72,71 +66,6 @@ minikube -p poc-e2e addons enable metrics-server
 minikube -p poc-e2e addons enable istio
 ```
 
-9. install Helm
-
-10. install elasticsearch
-> https://www.bogotobogo.com/DevOps/Docker/Docker_Kubernetes_ElasticSearch_with_Helm_minikube.php
-```shell
-helm repo add elastic https://Helm.elastic.co
-# helm repo list
-
-# https://github.com/elastic/helm-charts/tree/main/elasticsearch/examples/minikube
-# In order to properly support the required persistent volume claims for the Elasticsearch StatefulSet, the default-storageclass and storage-provisioner minikube addons must be enabled.
-minikube addons enable default-storageclass
-minikube addons enable storage-provisioner
-#wget -P kubernetes/elasticsearch https://raw.githubusercontent.com/elastic/Helm-charts/master/elasticsearch/examples/minikube/values.yaml
-helm upgrade -i elasticsearch elastic/elasticsearch -f kubernetes/elasticsearch/values.yaml
-#    Release "kibana" does not exist. Installing it now.
-#   NAME: elasticsearch
-#   LAST DEPLOYED: Tue Apr 11 00:23:16 2023
-#   NAMESPACE: default
-#   STATUS: deployed
-#   REVISION: 1
-#   NOTES:
-#   1. Watch all cluster members come up.
-#     $ kubectl get pods --namespace=default -l app=elasticsearch-master -w
-#   2. Retrieve elastic user's password.
-#     $ kubectl get secrets --namespace=default elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
-#   3. Test cluster health using Helm test.
-#     $ helm --namespace=default test elasticsearch
-```
-
-11. install kibana
-> suggestions for installation failure: https://lightrun.com/answers/elastic-helm-charts-error-while-installing-kibana-851
-
-```shell
-helm upgrade -i kibana elastic/kibana
-#   Release "kibana" does not exist. Installing it now.
-#   NAME: kibana
-#   LAST DEPLOYED: Tue Apr 11 00:57:19 2023
-#   NAMESPACE: default
-#   STATUS: deployed
-#   REVISION: 1
-#   TEST SUITE: None
-#   NOTES:
-#   1. Watch all containers come up.
-#     $ kubectl get pods --namespace=default -l release=kibana -w
-#   2. Retrieve the elastic user's password.
-#     $ kubectl get secrets --namespace=default elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
-#   3. Retrieve the kibana service account token.
-#     $ kubectl get secrets --namespace=default kibana-kibana-es-token -ojsonpath='{.data.token}' | base64 -d
-```
-
-12. install metricbeat
-```shell
-helm upgrade -i metricbeat elastic/metricbeat
-#   Release "metricbeat" does not exist. Installing it now.
-#   NAME: metricbeat
-#   LAST DEPLOYED: Tue Apr 11 01:06:03 2023
-#   NAMESPACE: default
-#   STATUS: deployed
-#   REVISION: 1
-#   TEST SUITE: None
-#   NOTES:
-#   1. Watch all containers come up.
-#     $ kubectl get pods --namespace=default -l app=metricbeat-metricbeat -w
-```
-
 ## App Build
 
 ```shell
@@ -184,11 +113,11 @@ kubectl exec -it $pod_name -- bin/bash
 ```
 
 ## TODO
-1. install elasticsearch on minikube with helm (modified values)
 1. explore kiali dashboard: https://medium.com/kialiproject/trace-my-mesh-part-1-3-35e252f9c6a9
-1. figure out trace aggregation
-1. evaluate suitable service type
-1. configure per-container cpu/memory limits
+1. define trace aggregation workflow: es or kiali
+1. evaluate suitable service type (optional)
+1. configure per-container cpu/memory limits (optional)
+1. discuss poster/report content
 
 ## Notes
 
