@@ -1,15 +1,17 @@
 CREATE_CLUSTER=$1
+PROFILE=poc-e2e
 APP=poc-e2e
+NS=poc-e2e
 
 if [[ $CREATE_CLUSTER == "TRUE" ]]
 then
   # create cluster
-  minikube profile $APP
+  minikube profile $PROFILE
   minikube delete
-  minikube start -p $APP
+  minikube start -p $PROFILE
 
   # default active profile to $APP
-  minikube profile $APP
+  minikube profile $PROFILE
 
   # install istio
   istioctl install --set profile=default -y
@@ -21,22 +23,22 @@ then
   kubectl apply -f kubernetes/addons/kiali.yaml
 
   # enable addons
-  minikube -p $APP addons enable dashboard
-  minikube -p $APP addons enable metrics-server
-  minikube -p $APP addons enable istio
+  minikube -p $PROFILE addons enable dashboard
+  minikube -p $PROFILE addons enable metrics-server
+  minikube -p $PROFILE addons enable istio
 fi
 
 # build
-eval $(minikube -p $APP docker-env)
+eval $(minikube -p $PROFILE docker-env)
 docker build -t $APP ./app
 
 # deploy app
-kubectl apply -f kubernetes/namespace/e2e.yaml
-kubectl apply -f kubernetes/services/e2e.yaml
-kubectl apply -f kubernetes/deployments/e2e.yaml
-kubectl apply -f kubernetes/deployments/e2e.yaml
-kubectl apply -f kubernetes/ingress/e2e.yaml
+kubectl apply -f kubernetes/namespace/poc-e2e.yaml
+kubectl apply -f kubernetes/services/poc-e2e.yaml
+kubectl apply -f kubernetes/deployments/poc-e2e.yaml
+kubectl apply -f kubernetes/deployments/poc-e2e.yaml
+kubectl apply -f kubernetes/ingress/poc-e2e.yaml
 
 # get pods
 sleep 5
-kubectl get pods -n $APP
+kubectl get pods -n $NS
