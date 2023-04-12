@@ -7,10 +7,10 @@ TBA
 TBA
 
 ## Requirements
-> Docker, Minikube, istioctl, and helm are required to be installed at your local.
+1. Docker, Minikube, istioctl, and helm are required to be pre-installed at your local.
 > Then the rest build and deployment steps can be fully covered in `deploy.sh`.
 
-1. configure default Minikube cpu & memory (default 2 cpu & 2GB mem) to align with requirements for Istio
+2. CPU & Memory of Minikube should be enlarged to align with Istio's requirements.
 > https://stackoverflow.com/questions/52199737/minikube-default-cpu-memory
 
 ```shell
