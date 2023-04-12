@@ -1,12 +1,18 @@
-# Per Request Type Performance Profiling
+# Per Request Type Performance Profiling for Anomaly Detection
 
-## Introduction
+# Progress
+> Latest Update: `04/12/23`
+## Done
 TBA
 
-## Design
+## In-Progress
 TBA
 
-## Requirements
+## Todo
+TBA
+
+
+# Requirements
 1. Docker, Minikube, istioctl, and helm are required to be pre-installed at your local.
 > Then the rest build and deployment steps can be fully covered in `deploy.sh`.
 
@@ -19,15 +25,19 @@ minikube config set memory 10240
 cat ~/.minikube/config/config.json
 ```
 
-## Build
+
+# Build & Deployment
+The all-in-one scripts `deploy.sh` provides toggles to support both infra and app deployment.
 ```shell
-eval $(minikube -p poc-e2e docker-env)
-docker build -t poc-e2e ./app
+./deploy.sh <DEPLOY_INFRA_TOGGLE> <DEPLOY_APP_TOGGLE>
 ```
+* **DEPLOY_INFRA_TOGGLE**: `TRUE` or `FALSE`
+* **DEPLOY_APP_TOGGLE**: `TRUE` or `FALSE`
 
-## Deployment
+## Deploy Infra
+### Create Cluster
+Create a Minikube single-node cluster, and set it to active.
 
-### Create Minikube Cluster
 ```shell
 PROFILE=poc-e2e
 
@@ -40,7 +50,9 @@ minikube start -p $PROFILE
 minikube profile $PROFILE
 ```
 
-### Deploy Infra
+### Deploy Istio & Addon Dashboards
+Deploy Istio and addon dashboards (such as prometheus, grafana, jaeger, and kiali).
+
 ```shell
 PROFILE=poc-e2e
 
@@ -62,29 +74,72 @@ minikube -p $PROFILE addons enable istio
 kubectl apply -f kubernetes/namespace/poc-e2e.yaml
 ```
 
+#### Access Dashboard
+* Prometheus
+```shell
+kubectl patch svc prometheus -n istio-system -p '{"spec": {"type": "NodePort"}}'
+minikube service prometheus -n istio-system --url
+```
+
+* Grafana
+```shell
+kubectl patch svc grafana -n istio-system -p '{"spec": {"type": "NodePort"}}'
+minikube service grafana -n istio-system --url
+```
+
+* Jaeger
+```shell
+kubectl patch svc tracing -n istio-system -p '{"spec": {"type": "NodePort"}}'
+minikube service tracing -n istio-system --url
+```
+
+* Kiali
+```shell
+kubectl patch svc kiali -n istio-system -p '{"spec": {"type": "NodePort"}}'
+minikube service kiali -n istio-system --url
+```
+
+
+## Deploy App
+Rollout the latest app release, which include uninstall, build, package, and deploy the app.
+
+### Uninstall App
+```shell
+APP=poc-e2e
+NS=poc-e2e
+
+helm uninstall $APP --namespace $NS
+```
+
+### Build App Image
+```shell
+APP=poc-e2e
+
+eval $(minikube -p poc-e2e docker-env)
+docker build -t poc-e2e ./app
+```
+
+### Package App
+```shell
+APP=poc-e2e
+NS=poc-e2e
+
+mkdir -p charts/$APP/package
+PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace $NS | cut -d':' -f2 | xargs`
+```
+
 ### Deploy App
 ```shell
 APP=poc-e2e
 NS=poc-e2e
 
-# uninstall app
-helm uninstall $APP --namespace $NS
-sleep 5
-
-# package app
-mkdir -p charts/$APP/package
-PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace $NS | cut -d':' -f2 | xargs`
-
-# label node
-#kubectl label nodes $PROFILE node-affinity=true
-
-# deploy app
 helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
 ```
 
-## Test at Local
 
-### App
+# Test at Local
+
+## App
 ```shell
 cd app
 docker build -t poc-e2e .
@@ -92,7 +147,7 @@ docker run -p 30000:5566 poc-e2e
 curl http://localhost:30000/rolldice
 ```
 
-### OpenTelemetry Collector
+## OpenTelemetry Collector
 
 ```shell
 docker run -p 4317:4317 \
@@ -102,21 +157,13 @@ docker run -p 4317:4317 \
     --config=/etc/otel-collector-config.yaml
 ```
 
-## Useful Debugging CMDs
+# Useful Debugging CMDs
 ```shell
 kubectl describe pod $pod_name
 kubectl logs $pod_name
 kubectl exec -it $pod_name -- bin/bash
 ```
 
-## TODO
-1. explore kiali dashboard: https://medium.com/kialiproject/trace-my-mesh-part-1-3-35e252f9c6a9
-1. define trace aggregation workflow: es or kiali
-1. evaluate suitable service type (optional)
-1. configure per-container cpu/memory limits (optional)
-1. discuss poster/report content
-
-## Notes
-
+# Other Notes
 1. When starting a minikube cluster with multiple nodes, image pulls fail on the second node (i.e. ErrImageNeverPull)
    > A known issue: https://github.com/kubernetes/minikube/issues/11505
