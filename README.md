@@ -113,11 +113,11 @@ kubectl exec -it $pod_name -- bin/bash
 ```
 
 ## TODO
-1. install elasticsearch on minikube with helm (modified values)
 1. explore kiali dashboard: https://medium.com/kialiproject/trace-my-mesh-part-1-3-35e252f9c6a9
-1. figure out trace aggregation
-1. evaluate suitable service type
-1. configure per-container cpu/memory limits
+1. define trace aggregation workflow: es or kiali
+1. evaluate suitable service type (optional)
+1. configure per-container cpu/memory limits (optional)
+1. discuss poster/report content
 
 ## Notes
 
