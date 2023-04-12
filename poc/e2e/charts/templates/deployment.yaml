@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployments.name }}
+  namespace: {{ .Chart.Name }}
+  labels:
+    app: {{ .Values.labels.app }}
+    version: {{ .Values.labels.version }}
+spec:
+  replicas: {{ .Values.deployments.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Values.labels.app }}
+      version: {{ .Values.labels.version }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.labels.app }}
+        version: {{ .Values.labels.version }}
+    spec:
+      containers:
+      - name: {{ ((index .Values.apps 0)).name }}
+        image: {{ ((index .Values.apps 0)).image.name }}:{{ ((index .Values.apps 0)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.apps 0)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ ((index .Values.apps 0)).env.otelExporterJaegerEndpoint }}
+        ports:
+        - containerPort: {{ ((index .Values.apps 0)).containerPort }}
+      - name: {{ ((index .Values.apps 1)).name }}
+        image: {{ ((index .Values.apps 1)).image.name }}:{{ ((index .Values.apps 1)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.apps 1)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ ((index .Values.apps 1)).env.otelExporterJaegerEndpoint }}
+        ports:
+        - containerPort: {{ ((index .Values.apps 1)).containerPort }}

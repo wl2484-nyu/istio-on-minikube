@@ -1,0 +1,62 @@
+labels:
+  # labels.app is used to connect deployments, services, and pods
+  # https://www.youtube.com/watch?v=qmDzcu5uY1I&list=PLy7NrYWoggjziYQIDorlXjTvvwweTYoNC&index=7&t=359s
+  app: poc-e2e
+  version: v1
+
+deployments:
+  name: poc-e2e
+  replicas: 2
+
+apps:
+- name: poc-e2e-1
+  image:
+    name: poc-e2e
+    tag: latest
+  imagePullPolicy: Never
+  env:
+    otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
+  containerPort: 5566
+- name: poc-e2e-2
+  image:
+    name: poc-e2e
+    tag: latest
+  imagePullPolicy: Never
+  env:
+    otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
+  containerPort: 5566
+
+services:
+- name: poc-e2e-1
+  type: ClusterIP
+  prefix: /app1
+  ports:
+    - port: 5566
+      protocol: TCP
+      name: http
+      targetPort: 5566
+- name: poc-e2e-2
+  type: ClusterIP
+  prefix: /app2
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+
+gateway:
+  name: poc-e2e
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "poc-e2e.dtp.com"
+
+virtualservice:
+  name: poce2evirtualservice
+  hosts:
+  - "poc-e2e.dtp.com"
+  gateways:
+  - poc-e2e
