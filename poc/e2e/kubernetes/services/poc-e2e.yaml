@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: poc-e2e
+  namespace: poc-e2e
+  labels:
+    app: poc-e2e
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5566
+      protocol: TCP
+      name: http
+      targetPort: 5566
+  selector:
+    app: poc-e2e
