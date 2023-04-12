@@ -36,7 +36,7 @@ minikube profile $PROFILE
 minikube delete
 minikube start -p $PROFILE
 
-# default active profile to $APP
+# set $PROFILE to active
 minikube profile $PROFILE
 ```
 
