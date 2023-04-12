@@ -185,7 +185,6 @@ kubectl exec -it $pod_name -- bin/bash
 
 ## TODO
 
-1. replace to use helm
 1. add one more container and service under the same deployment
 1. install elasticsearch on minikube with helm (modified values)
 1. explore kiali dashboard: https://medium.com/kialiproject/trace-my-mesh-part-1-3-35e252f9c6a9
