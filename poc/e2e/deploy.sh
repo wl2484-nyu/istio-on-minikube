@@ -45,7 +45,10 @@ then
 	
 	# create app namespace
 	kubectl apply -f kubernetes/namespace/poc-e2e.yaml
-	
+
+	# label node
+	#kubectl label nodes $PROFILE node-affinity=true
+
 	# deploy app
 	#kubectl apply -f kubernetes/services/poc-e2e.yaml
 	#kubectl apply -f kubernetes/deployments/poc-e2e.yaml

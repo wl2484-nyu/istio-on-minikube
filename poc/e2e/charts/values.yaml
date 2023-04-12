@@ -5,8 +5,10 @@ labels:
   version: v1
 
 deployments:
-  name: poc-e2e
-  replicas: 2
+- name: poc-e2e-1
+  replicas: 1
+- name: poc-e2e-2
+  replicas: 1
 
 apps:
 - name: poc-e2e-1
