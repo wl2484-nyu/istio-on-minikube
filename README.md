@@ -137,6 +137,46 @@ helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
 ```
 
 
+# Access Service API
+
+## Requirements
+Create a secure network tunnel between local machine and the kubernetes cluster running on Minikube
+```shell
+minikube tunnel --cleanup
+```
+
+## Approach 1
+Curl service API with port-forward.
+
+### Command
+```shell
+kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_PORT>
+```
+* `CONTAINER_PORT`: `spec.containers.ports.containerPort` defined in the Deployment YAML
+
+### Example
+```shell
+kubectl port-forward svc/poc-e2e-1 -n poc-e2e 5566:5566
+kubectl port-forward svc/poc-e2e-2 -n poc-e2e 5567:5566
+```
+
+## Approach 2
+Curl service API with Host in header.
+> Not generating opentelemetry traces to Jaeger.
+
+### Command
+```shell
+curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
+```
+* **PORT**: `spec.servers.port.number` defined in the Gateway YAML
+
+### Example
+```shell
+curl -H "Host: poc-e2e-2.dtp.com" http://localhost/rolldice
+```
+* Need not specify `PORT` if its value is 80
+
+
 # Test at Local
 
 ## App
