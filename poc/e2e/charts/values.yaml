@@ -54,11 +54,27 @@ gateway:
       name: http
       protocol: HTTP
     hosts:
-    - "poc-e2e.local"
+    - "dtp.com"
+    - "*.dtp.com"
 
-virtualservice:
-  name: poce2evirtualservice
+virtualservices:
+- name: poce2e1vs
   hosts:
-  - "poc-e2e.local"
+  - "poc-e2e-1.dtp.com"
   gateways:
   - poc-e2e
+  match:
+  - uri:
+      prefix: /home
+  - uri:
+      prefix: /rolldice
+- name: poce2e2vs
+  hosts:
+  - "poc-e2e-2.dtp.com"
+  gateways:
+  - poc-e2e
+  match:
+  - uri:
+      prefix: /home
+  - uri:
+      prefix: /rolldice

@@ -13,25 +13,36 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ .Values.virtualservice.name }}
+  name: {{ ((index .Values.virtualservices 0)).name }}
   namespace: {{ .Chart.Name }}
 spec:
   hosts:
-    {{- .Values.virtualservice.hosts | toYaml | nindent 2 }}
+    {{- ((index .Values.virtualservices 0)).hosts | toYaml | nindent 2 }}
   gateways:
-    {{- .Values.virtualservice.gateways | toYaml | nindent 2 }}
+    {{- ((index .Values.virtualservices 0)).gateways | toYaml | nindent 2 }}
   http:
   - match:
-    - uri:
-        prefix: {{ ((index .Values.services 0)).prefix }}
+      {{- ((index .Values.virtualservices 0)).match | toYaml | nindent 4 }}
     route:
     - destination:
         port:
           number: {{ ((index .Values.apps 0)).containerPort }}
         host: {{ printf "%s.%s.%s" ((index .Values.services 0)).name .Chart.Name "svc.cluster.local" }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ ((index .Values.virtualservices 1)).name }}
+  namespace: {{ .Chart.Name }}
+spec:
+  hosts:
+    {{- ((index .Values.virtualservices 1)).hosts | toYaml | nindent 2 }}
+  gateways:
+    {{- ((index .Values.virtualservices 1)).gateways | toYaml | nindent 2 }}
+  http:
   - match:
-    - uri:
-        prefix: {{ ((index .Values.services 1)).prefix }}
+      {{- ((index .Values.virtualservices 1)).match | toYaml | nindent 4 }}
     route:
     - destination:
         port:

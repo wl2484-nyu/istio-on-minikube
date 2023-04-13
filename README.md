@@ -1,7 +1,7 @@
-# Per Request Type Performance Profiling for Anomaly Detection
+# Per Request Type Performance Anomaly Detection
 
 # Progress
-> Latest Update: `04/12/23`
+> Latest Update: `04/13/23`
 ## Done
 TBA
 
