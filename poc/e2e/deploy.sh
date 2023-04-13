@@ -1,10 +1,10 @@
-CREATE_CLUSTER=$1
+DEPLOY_INFRA=$1
 DEPLOY_APP=$2
 PROFILE=poc-e2e
 APP=poc-e2e
 NS=poc-e2e
 
-if [[ $CREATE_CLUSTER == "TRUE" ]]
+if [[ $DEPLOY_INFRA == "TRUE" ]]
 then
   # create cluster
   minikube profile $PROFILE
@@ -19,9 +19,17 @@ then
 
   # install istio dashboard addons
   kubectl apply -f kubernetes/addons/prometheus.yaml
+  kubectl patch svc prometheus -n istio-system -p '{"spec": {"type": "NodePort"}}'
+  #minikube service prometheus -n istio-system --url
   kubectl apply -f kubernetes/addons/grafana.yaml
+  kubectl patch svc grafana -n istio-system -p '{"spec": {"type": "NodePort"}}'
+  #minikube service grafana -n istio-system --url
   kubectl apply -f kubernetes/addons/jaeger.yaml
+  kubectl patch svc tracing -n istio-system -p '{"spec": {"type": "NodePort"}}'
+  #minikube service tracing -n istio-system --url
   kubectl apply -f kubernetes/addons/kiali.yaml
+  kubectl patch svc kiali -n istio-system -p '{"spec": {"type": "NodePort"}}'
+  #minikube service kiali -n istio-system --url
 
   # enable addons
   minikube -p $PROFILE addons enable dashboard

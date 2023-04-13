@@ -33,10 +33,10 @@ services:
   type: ClusterIP
   prefix: /app1
   ports:
-    - port: 5566
-      protocol: TCP
-      name: http
-      targetPort: 5566
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
 - name: poc-e2e-2
   type: ClusterIP
   prefix: /app2
@@ -54,11 +54,27 @@ gateway:
       name: http
       protocol: HTTP
     hosts:
-    - "poc-e2e.dtp.com"
+    - "dtp.com"
+    - "*.dtp.com"
 
-virtualservice:
-  name: poce2evirtualservice
+virtualservices:
+- name: poce2e1vs
   hosts:
-  - "poc-e2e.dtp.com"
+  - "poc-e2e-1.dtp.com"
   gateways:
   - poc-e2e
+  match:
+  - uri:
+      prefix: /home
+  - uri:
+      prefix: /rolldice
+- name: poce2e2vs
+  hosts:
+  - "poc-e2e-2.dtp.com"
+  gateways:
+  - poc-e2e
+  match:
+  - uri:
+      prefix: /home
+  - uri:
+      prefix: /rolldice
