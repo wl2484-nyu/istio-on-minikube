@@ -32,16 +32,14 @@ services:
 - name: poc-e2e-1
   type: ClusterIP
   prefix: /app1
-  host: poc-e2e-1.poc-e2e.svc.cluster.local
   ports:
-    - port: 5566
-      protocol: TCP
-      name: http
-      targetPort: 5566
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
 - name: poc-e2e-2
   type: ClusterIP
   prefix: /app2
-  host: poc-e2e-2.poc-e2e.svc.cluster.local
   ports:
   - port: 5566
     protocol: TCP
