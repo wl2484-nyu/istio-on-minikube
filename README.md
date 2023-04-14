@@ -1,15 +1,16 @@
 # Per Request Type Performance Anomaly Detection
 
-# Progress
+## Progress
 > Latest Update: `04/13/23`
-## Done
-TBA
 
-## In-Progress
-TBA
+### In-Progress
+1. App implementation
+1. Trace collection workflow implementation
 
-## Todo
-TBA
+### Done
+1. Devise the demo app & request-type scenarios
+1. Design trace collection workflow with Istio on minikube
+1. Consolidate manual operations into Helm charts and deployment scripts
 
 
 # Requirements
