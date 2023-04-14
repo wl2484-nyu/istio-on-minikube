@@ -198,13 +198,13 @@ docker run -p 4317:4317 \
     --config=/etc/otel-collector-config.yaml
 ```
 
-# Useful Debugging CMDs
-```shell
-kubectl describe pod $pod_name
-kubectl logs $pod_name
-kubectl exec -it $pod_name -- bin/bash
-```
 
 # Other Notes
 1. When starting a minikube cluster with multiple nodes, image pulls fail on the second node (i.e. ErrImageNeverPull)
    > A known issue: https://github.com/kubernetes/minikube/issues/11505
+2. Useful Debugging CMDs
+   ```shell
+   kubectl describe pod $pod_name
+   kubectl logs $pod_name
+   kubectl exec -it $pod_name -- bin/bash
+   ```
