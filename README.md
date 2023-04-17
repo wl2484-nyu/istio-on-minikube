@@ -13,18 +13,8 @@
 1. Consolidate manual operations into Helm charts and deployment scripts
 
 
-# Requirements
-1. Docker, Minikube, istioctl, and helm are required to be pre-installed at your local.
-> Then the rest build and deployment steps can be fully covered in `deploy.sh`.
-
-2. CPU & Memory of Minikube should be enlarged to align with Istio's requirements.
-> https://stackoverflow.com/questions/52199737/minikube-default-cpu-memory
-
-```shell
-minikube config set cpus 4
-minikube config set memory 10240
-cat ~/.minikube/config/config.json
-```
+# Architecture
+![1.0.0](screenshots/architecture-1.0.0.png)
 
 
 # Build & Deployment
@@ -34,6 +24,32 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 ```
 * **DEPLOY_INFRA_TOGGLE**: `TRUE` or `FALSE`
 * **DEPLOY_APP_TOGGLE**: `TRUE` or `FALSE`
+
+## Requirements
+1. Install [Docker](https://docs.docker.com/engine/install/), [Minikube](https://minikube.sigs.k8s.io/docs/start/), [istioctl1.17.1](https://istio.io/latest/docs/setup/install/istioctl/), and [helm](https://helm.sh/docs/intro/install/) at your local.
+   > Then the rest build and deployment steps can be fully covered in `deploy.sh`.
+
+2. Enlarge CPU & Memory of Minikube to align with Istio's requirements.
+   ```shell
+   minikube config set cpus 4
+   minikube config set memory 10240
+   cat ~/.minikube/config/config.json
+   ```
+   > https://stackoverflow.com/questions/52199737/minikube-default-cpu-memory
+
+3. Modify default random sampling from 1% to 100% (for demo).
+   * Add the following setting to `istio-1.17.1/manifests/profiles/demo.yaml`:
+      ```yaml
+      apiVersion: install.istio.io/v1alpha1
+      kind: IstioOperator
+      spec:
+        meshConfig:
+          enableTracing: true
+          defaultConfig:
+            tracing:
+              sampling: 100
+      ```
+      > https://preliminary.istio.io/latest/docs/tasks/observability/distributed-tracing/mesh-and-proxy-config/#customizing-trace-sampling
 
 ## Deploy Infra
 ### Create Cluster
@@ -137,8 +153,8 @@ NS=poc-e2e
 helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
 ```
 
-
-# Access Service API
+# Testing
+Access service APIs from local for trace generation.
 
 ## Requirements
 Create a secure network tunnel between local machine and the kubernetes cluster running on Minikube
@@ -147,6 +163,21 @@ minikube tunnel --cleanup
 ```
 
 ## Approach 1
+Curl service API with Host in header.
+
+### Command
+```shell
+curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
+```
+* **PORT**: `spec.servers.port.number` defined in the Gateway YAML
+
+### Example
+```shell
+curl -H "Host: poc-e2e-2.dtp.org" http://localhost/rolldice
+```
+* No need to specify `PORT` when its value is 80
+
+## Approach 2
 Curl service API with port-forward.
 
 ### Command
@@ -159,43 +190,6 @@ kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_P
 ```shell
 kubectl port-forward svc/poc-e2e-1 -n poc-e2e 5566:5566
 kubectl port-forward svc/poc-e2e-2 -n poc-e2e 5567:5566
-```
-
-## Approach 2
-Curl service API with Host in header.
-> Not generating opentelemetry traces to Jaeger.
-
-### Command
-```shell
-curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
-```
-* **PORT**: `spec.servers.port.number` defined in the Gateway YAML
-
-### Example
-```shell
-curl -H "Host: poc-e2e-2.dtp.com" http://localhost/rolldice
-```
-* Need not specify `PORT` if its value is 80
-
-
-# Test at Local
-
-## App
-```shell
-cd app
-docker build -t poc-e2e .
-docker run -p 30000:5566 poc-e2e
-curl http://localhost:30000/rolldice
-```
-
-## OpenTelemetry Collector
-
-```shell
-docker run -p 4317:4317 \
-    --network=host \
-    -v $(pwd)/otel-collector-config.yaml:/etc/otel-collector-config.yaml \
-    otel/opentelemetry-collector:latest \
-    --config=/etc/otel-collector-config.yaml
 ```
 
 
