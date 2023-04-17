@@ -12,6 +12,8 @@ deployments:
 
 apps:
 - name: poc-e2e-1
+  version: v1
+  prefix: /app1
   image:
     name: poc-e2e
     tag: latest
@@ -20,6 +22,8 @@ apps:
     otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
   containerPort: 5566
 - name: poc-e2e-2
+  version: v1
+  prefix: /app2
   image:
     name: poc-e2e
     tag: latest
@@ -31,7 +35,6 @@ apps:
 services:
 - name: poc-e2e-1
   type: ClusterIP
-  prefix: /app1
   ports:
   - port: 5566
     protocol: TCP
@@ -39,30 +42,40 @@ services:
     targetPort: 5566
 - name: poc-e2e-2
   type: ClusterIP
-  prefix: /app2
   ports:
   - port: 5566
     protocol: TCP
     name: http
     targetPort: 5566
 
-gateway:
+ingress:
   name: poc-e2e
-  servers:
-  - port:
-      number: 80
-      name: http
-      protocol: HTTP
-    hosts:
-    - "dtp.com"
-    - "*.dtp.com"
+  rules:
+  - host: poc-e2e-1.dtp.org
+    http:
+      paths:
+        - path: /app1
+          pathType: Prefix
+          backend:
+            service:
+              name: poc-e2e-1
+              port:
+                name: http
+  - host: poc-e2e-2.dtp.org
+    http:
+      paths:
+        - path: /app2
+          pathType: Prefix
+          backend:
+            service:
+              name: poc-e2e-2
+              port:
+                name: http
 
 virtualservices:
 - name: poce2e1vs
   hosts:
-  - "poc-e2e-1.dtp.com"
-  gateways:
-  - poc-e2e
+  - "poc-e2e-1.dtp.org"
   match:
   - uri:
       prefix: /home
@@ -70,9 +83,7 @@ virtualservices:
       prefix: /rolldice
 - name: poce2e2vs
   hosts:
-  - "poc-e2e-2.dtp.com"
-  gateways:
-  - poc-e2e
+  - "poc-e2e-2.dtp.org"
   match:
   - uri:
       prefix: /home

@@ -6,7 +6,7 @@ metadata:
 spec:
   type: {{ ((index .Values.services 0)).type }}
   selector:
-    app: {{ .Values.labels.app }}
+    app: {{ ((index .Values.apps 0)).name }}
   ports:
     {{- ((index .Values.services 0)).ports | toYaml | nindent 2 }}
 
@@ -19,6 +19,6 @@ metadata:
 spec:
   type: {{ ((index .Values.services 1)).type }}
   selector:
-    app: {{ .Values.labels.app }}
+    app: {{ ((index .Values.apps 1)).name }}
   ports:
     {{- ((index .Values.services 1)).ports | toYaml | nindent 2 }}
