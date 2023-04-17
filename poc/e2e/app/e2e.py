@@ -13,6 +13,7 @@ from functools import wraps
 from fastapi import FastAPI, Request
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
+import os
 import time
 import uuid
 
@@ -45,6 +46,14 @@ roll_counter = meter.create_counter(
 
 # app = Flask(__name__)
 app = FastAPI()
+sub_app = FastAPI()
+
+API_PREFIX = os.getenv("API_PREFIX", "app")
+API_VERSION = os.getenv("API_VERSION", "v1")
+app.mount("{}/{}".format(API_PREFIX, API_VERSION), sub_app)
+print("URI PREFIX: {}/{}".format(API_PREFIX, API_VERSION))
+
+FastAPIInstrumentor.instrument_app(app)
 
 
 def add_b3_header(name):
@@ -66,8 +75,8 @@ def get_cur_time(ms=True):
         return int(time.time())
 
 
-@app.get('/')
-@app.get('/home')
+@sub_app.get('/')
+@sub_app.get('/home')
 async def hello(request: Request):
     return "Let's roll the dice!"
 
@@ -89,8 +98,8 @@ def do_roll(count):
         return rolls_str
 
 
-@app.get("/rolldice")
-@app.get("/rolldice/{count}")
+@sub_app.get("/rolldice")
+@sub_app.get("/rolldice/{count}")
 @add_b3_header("main")
 async def roll_dice(request: Request):
     span = trace.get_current_span()
@@ -114,6 +123,3 @@ async def roll_dice(request: Request):
 
     except Exception as e:
         return "You've got no luck."
-
-
-FastAPIInstrumentor.instrument_app(app)
