@@ -1,0 +1,91 @@
+labels:
+  # labels.app is used to connect deployments, services, and pods
+  # https://www.youtube.com/watch?v=qmDzcu5uY1I&list=PLy7NrYWoggjziYQIDorlXjTvvwweTYoNC&index=7&t=359s
+  app: e2e
+  version: v1
+
+deployments:
+- name: e2e-1
+  replicas: 1
+- name: e2e-2
+  replicas: 1
+
+apps:
+- name: e2e-1
+  version: v1
+  prefix: /app1
+  image:
+    name: e2e
+    tag: latest
+  imagePullPolicy: Never
+  env:
+    otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
+  containerPort: 5566
+- name: e2e-2
+  version: v1
+  prefix: /app2
+  image:
+    name: e2e
+    tag: latest
+  imagePullPolicy: Never
+  env:
+    otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
+  containerPort: 5566
+
+services:
+- name: e2e-1
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: e2e-2
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+
+ingress:
+  name: e2e
+  rules:
+  - host: e2e-1.dtp.org
+    http:
+      paths:
+        - path: /app1
+          pathType: Prefix
+          backend:
+            service:
+              name: e2e-1
+              port:
+                name: http
+  - host: e2e-2.dtp.org
+    http:
+      paths:
+        - path: /app2
+          pathType: Prefix
+          backend:
+            service:
+              name: e2e-2
+              port:
+                name: http
+
+virtualservices:
+- name: poce2e1vs
+  hosts:
+  - "e2e-1.dtp.org"
+  match:
+  - uri:
+      prefix: /home
+  - uri:
+      prefix: /rolldice
+- name: poce2e2vs
+  hosts:
+  - "e2e-2.dtp.org"
+  match:
+  - uri:
+      prefix: /home
+  - uri:
+      prefix: /rolldice
