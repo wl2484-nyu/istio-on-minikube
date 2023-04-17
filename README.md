@@ -1,7 +1,7 @@
 # Per Request Type Performance Anomaly Detection
 
 ## Progress
-> Latest Update: `04/13/23`
+> Latest Update: `04/17/23`
 
 ### In-Progress
 1. App implementation
@@ -14,7 +14,7 @@
 
 
 # Architecture
-![1.0.0](screenshots/architecture-1.0.0.png)
+![1.0.0](screenshots/architecture-1.0.0.jpg)
 
 
 # Build & Deployment
@@ -56,7 +56,7 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 Create a Minikube single-node cluster, and set it to active.
 
 ```shell
-PROFILE=poc-e2e
+PROFILE=e2e-1.0.0-1.0.0
 
 # create cluster
 minikube profile $PROFILE
@@ -71,10 +71,7 @@ minikube profile $PROFILE
 Deploy Istio and addon dashboards (such as prometheus, grafana, jaeger, and kiali).
 
 ```shell
-PROFILE=poc-e2e
-
-# install istio
-istioctl install --set profile=default -y
+PROFILE=e2e-1.0.0-1.0.0
 
 # install istio dashboard addons
 kubectl apply -f kubernetes/addons/prometheus.yaml
@@ -87,8 +84,8 @@ minikube -p $PROFILE addons enable dashboard
 minikube -p $PROFILE addons enable metrics-server
 minikube -p $PROFILE addons enable istio
 
-# create namespace
-kubectl apply -f kubernetes/namespace/poc-e2e.yaml
+# install istio
+istioctl install --set profile=demo -y
 ```
 
 #### Access Dashboard
@@ -122,24 +119,25 @@ Rollout the latest app release, which include uninstall, build, package, and dep
 
 ### Uninstall App
 ```shell
-APP=poc-e2e
-NS=poc-e2e
+APP=e2e
+NS=e2e
 
 helm uninstall $APP --namespace $NS
 ```
 
 ### Build App Image
 ```shell
-APP=poc-e2e
+PROFILE=e2e-1.0.0-1.0.0
+APP=e2e
 
-eval $(minikube -p poc-e2e docker-env)
-docker build -t poc-e2e ./app
+eval $(minikube -p $PROFILE docker-env)
+docker build -t $APP ./app
 ```
 
 ### Package App
 ```shell
-APP=poc-e2e
-NS=poc-e2e
+APP=e2e
+NS=e2e
 
 mkdir -p charts/$APP/package
 PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace $NS | cut -d':' -f2 | xargs`
@@ -147,8 +145,8 @@ PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace 
 
 ### Deploy App
 ```shell
-APP=poc-e2e
-NS=poc-e2e
+APP=e2e
+NS=e2e
 
 helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
 ```
@@ -173,7 +171,7 @@ curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
 
 ### Example
 ```shell
-curl -H "Host: poc-e2e-2.dtp.org" http://localhost/rolldice
+curl -H "Host: e2e-2.dtp.org" http://localhost/rolldice
 ```
 * No need to specify `PORT` when its value is 80
 
@@ -188,8 +186,8 @@ kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_P
 
 ### Example
 ```shell
-kubectl port-forward svc/poc-e2e-1 -n poc-e2e 5566:5566
-kubectl port-forward svc/poc-e2e-2 -n poc-e2e 5567:5566
+kubectl port-forward svc/e2e-1 -n e2e 5566:5566
+kubectl port-forward svc/e2e-2 -n e2e 5567:5566
 ```
 
 
