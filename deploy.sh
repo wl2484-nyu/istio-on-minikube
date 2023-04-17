@@ -14,6 +14,9 @@ then
   # default active profile to $APP
   minikube profile $PROFILE
 
+  # install istio
+  istioctl install --set profile=demo -y
+
   # install istio dashboard addons
   kubectl apply -f kubernetes/addons/prometheus.yaml
   kubectl patch svc prometheus -n istio-system -p '{"spec": {"type": "NodePort"}}'
@@ -32,9 +35,6 @@ then
   minikube -p $PROFILE addons enable dashboard
   minikube -p $PROFILE addons enable metrics-server
   minikube -p $PROFILE addons enable istio
-
-  # install istio
-  istioctl install --set profile=demo -y
 fi
 
 if [[ $DEPLOY_APP == "TRUE" ]]
