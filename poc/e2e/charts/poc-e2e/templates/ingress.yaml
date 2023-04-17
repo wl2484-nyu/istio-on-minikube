@@ -1,13 +1,13 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: {{ .Values.gateway.name }}
+  name: {{ .Values.ingress.name }}
   namespace: {{ .Chart.Name }}
+  annotations:
+    kubernetes.io/ingress.class: "istio"
 spec:
-  selector:
-    istio: ingressgateway # use Istio's default gateway implementation
-  servers:
-    {{- .Values.gateway.servers | toYaml | nindent 2 }}
+  rules:
+    {{- .Values.ingress.rules | toYaml | nindent 2 }}
 
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -18,8 +18,6 @@ metadata:
 spec:
   hosts:
     {{- ((index .Values.virtualservices 0)).hosts | toYaml | nindent 2 }}
-  gateways:
-    {{- ((index .Values.virtualservices 0)).gateways | toYaml | nindent 2 }}
   http:
   - match:
       {{- ((index .Values.virtualservices 0)).match | toYaml | nindent 4 }}
@@ -27,7 +25,7 @@ spec:
     - destination:
         port:
           number: {{ ((index .Values.apps 0)).containerPort }}
-        host: {{ printf "%s.%s.%s" ((index .Values.services 0)).name .Chart.Name "svc.cluster.local" }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+        host: {{ ((index .Values.services 0)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
 
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -38,8 +36,6 @@ metadata:
 spec:
   hosts:
     {{- ((index .Values.virtualservices 1)).hosts | toYaml | nindent 2 }}
-  gateways:
-    {{- ((index .Values.virtualservices 1)).gateways | toYaml | nindent 2 }}
   http:
   - match:
       {{- ((index .Values.virtualservices 1)).match | toYaml | nindent 4 }}
@@ -47,4 +43,4 @@ spec:
     - destination:
         port:
           number: {{ ((index .Values.apps 1)).containerPort }}
-        host: {{ printf "%s.%s.%s" ((index .Values.services 1)).name .Chart.Name "svc.cluster.local" }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+        host: {{ ((index .Values.services 1)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services

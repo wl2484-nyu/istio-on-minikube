@@ -15,7 +15,7 @@ then
   minikube profile $PROFILE
 
   # install istio
-  istioctl install --set profile=default -y
+  istioctl install --set profile=demo -y
 
   # install istio dashboard addons
   kubectl apply -f kubernetes/addons/prometheus.yaml
