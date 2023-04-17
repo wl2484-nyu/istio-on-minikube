@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: e2e
+  labels:
+    name: e2e
+    istio-injection: enabled
