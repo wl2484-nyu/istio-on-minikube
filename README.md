@@ -189,7 +189,7 @@ kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_P
 ```shell
 kubectl port-forward svc/e2e-1 -n e2e 5566:5566
 curl http://localhost:5566/app1/v1/rolldice
-kubectl port-forward svc/e2e-2 -n e2e 5567:5566
+kubectl port-forward svc/e2e-2 -n e2e 5567:5567
 curl http://localhost:5567/app2/v1/rolldice
 ```
 
