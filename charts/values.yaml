@@ -1,34 +1,34 @@
 otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
 
 deployments:
-- name: e2e-1
+- name: app-1
   replicas: 1
   version: v1
   prefix: /app1
   image:
-    name: e2e-1
+    name: rolldice-1
     tag: latest
   imagePullPolicy: Never
   containerPort: 5566
-- name: e2e-2
+- name: app-2
   replicas: 1
   version: v1
   prefix: /app2
   image:
-    name: e2e-2
+    name: rolldice-2
     tag: latest
   imagePullPolicy: Never
   containerPort: 5566
 
 services:
-- name: e2e-1
+- name: svc-1
   type: ClusterIP
   ports:
   - port: 5566
     protocol: TCP
     name: http
     targetPort: 5566
-- name: e2e-2
+- name: svc-2
   type: ClusterIP
   ports:
   - port: 5566
@@ -39,39 +39,39 @@ services:
 ingress:
   name: e2e
   rules:
-  - host: e2e-1.dtp.org
+  - host: svc-1.dtp.org
     http:
       paths:
         - path: /app1
           pathType: Prefix
           backend:
             service:
-              name: e2e-1
+              name: svc-1
               port:
                 name: http
-  - host: e2e-2.dtp.org
+  - host: svc-2.dtp.org
     http:
       paths:
         - path: /app2
           pathType: Prefix
           backend:
             service:
-              name: e2e-2
+              name: svc-2
               port:
                 name: http
 
 virtualservices:
-- name: poce2e1vs
+- name: svc1vs
   hosts:
-  - "e2e-1.dtp.org"
+  - "svc-1.dtp.org"
   match:
   - uri:
       prefix: /home
   - uri:
       prefix: /rolldice
-- name: poce2e2vs
+- name: svc2vs
   hosts:
-  - "e2e-2.dtp.org"
+  - "svc-2.dtp.org"
   match:
   - uri:
       prefix: /home
