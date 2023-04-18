@@ -4,39 +4,41 @@ metadata:
   name: {{ ((index .Values.deployments 0)).name }}
   namespace: {{ .Chart.Name }}
   labels:
-    app: {{ ((index .Values.apps 0)).name }}
-    version: {{ ((index .Values.apps 0)).version }}
+    app: {{ ((index .Values.deployments 0)).name }}
+    version: {{ ((index .Values.deployments 0)).version }}
 spec:
   replicas: {{ ((index .Values.deployments 0)).replicas }}
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: {{ ((index .Values.apps 0)).name }}
-      version: {{ ((index .Values.apps 0)).version }}
+      app: {{ ((index .Values.deployments 0)).name }}
+      version: {{ ((index .Values.deployments 0)).version }}
   template:
     metadata:
       labels:
-        app: {{ ((index .Values.apps 0)).name }}
-        version: {{ ((index .Values.apps 0)).version }}
+        app: {{ ((index .Values.deployments 0)).name }}
+        version: {{ ((index .Values.deployments 0)).version }}
     spec:
       containers:
-      - name: {{ ((index .Values.apps 0)).name }}
-        image: {{ ((index .Values.apps 0)).image.name }}:{{ ((index .Values.apps 0)).image.tag }}
-        imagePullPolicy: {{ ((index .Values.apps 0)).imagePullPolicy }}
+      - name: {{ ((index .Values.deployments 0)).name }}
+        image: {{ ((index .Values.deployments 0)).image.name }}:{{ ((index .Values.deployments 0)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 0)).imagePullPolicy }}
         env:
         - name: nspace
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
         - name: OTEL_EXPORTER_JAEGER_ENDPOINT
-          value: {{ ((index .Values.apps 0)).env.otelExporterJaegerEndpoint }}
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 0)).name }}
         - name: API_PREFIX
-          value: {{ ((index .Values.apps 0)).prefix }}
+          value: {{ ((index .Values.deployments 0)).prefix }}
         - name: API_VERSION
-          value: {{ ((index .Values.apps 0)).version }}
+          value: {{ ((index .Values.deployments 0)).version }}
         ports:
-        - containerPort: {{ ((index .Values.apps 0)).containerPort }}
+        - containerPort: {{ ((index .Values.deployments 0)).containerPort }}
 
 ---
 apiVersion: apps/v1
@@ -45,36 +47,38 @@ metadata:
   name: {{ ((index .Values.deployments 1)).name }}
   namespace: {{ .Chart.Name }}
   labels:
-    app: {{ ((index .Values.apps 1)).name }}
-    version: {{ ((index .Values.apps 0)).version }}
+    app: {{ ((index .Values.deployments 1)).name }}
+    version: {{ ((index .Values.deployments 1)).version }}
 spec:
   replicas: {{ ((index .Values.deployments 1)).replicas }}
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: {{ ((index .Values.apps 1)).name }}
-      version: {{ ((index .Values.apps 1)).version }}
+      app: {{ ((index .Values.deployments 1)).name }}
+      version: {{ ((index .Values.deployments 1)).version }}
   template:
     metadata:
       labels:
-        app: {{ ((index .Values.apps 1)).name }}
-        version: {{ ((index .Values.apps 1)).version }}
+        app: {{ ((index .Values.deployments 1)).name }}
+        version: {{ ((index .Values.deployments 1)).version }}
     spec:
       containers:
-      - name: {{ ((index .Values.apps 1)).name }}
-        image: {{ ((index .Values.apps 1)).image.name }}:{{ ((index .Values.apps 1)).image.tag }}
-        imagePullPolicy: {{ ((index .Values.apps 1)).imagePullPolicy }}
+      - name: {{ ((index .Values.deployments 1)).name }}
+        image: {{ ((index .Values.deployments 1)).image.name }}:{{ ((index .Values.deployments 1)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 1)).imagePullPolicy }}
         env:
         - name: nspace
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
         - name: OTEL_EXPORTER_JAEGER_ENDPOINT
-          value: {{ ((index .Values.apps 1)).env.otelExporterJaegerEndpoint }}
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 1)).name }}
         - name: API_PREFIX
-          value: {{ ((index .Values.apps 1)).prefix }}
+          value: {{ ((index .Values.deployments 1)).prefix }}
         - name: API_VERSION
-          value: {{ ((index .Values.apps 1)).version }}
+          value: {{ ((index .Values.deployments 1)).version }}
         ports:
-        - containerPort: {{ ((index .Values.apps 1)).containerPort }}
+        - containerPort: {{ ((index .Values.deployments 1)).containerPort }}

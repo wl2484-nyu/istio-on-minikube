@@ -8,4 +8,4 @@ WORKDIR /app
 RUN pip3 install -r requirements.txt
 
 EXPOSE 5566
-CMD ["opentelemetry-instrument", "uvicorn", "e2e:app", "--host", "0.0.0.0", "--port", "5566"]
+CMD ["opentelemetry-instrument", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5566"]
