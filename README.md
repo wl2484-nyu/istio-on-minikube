@@ -171,7 +171,8 @@ curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
 
 ### Example
 ```shell
-curl -H "Host: e2e-2.dtp.org" http://localhost/rolldice
+curl -H "Host: e2e-1.dtp.org" http://localhost/app1/v1/rolldice
+curl -H "Host: e2e-2.dtp.org" http://localhost/app2/v1/rolldice
 ```
 * No need to specify `PORT` when its value is 80
 
@@ -187,7 +188,9 @@ kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_P
 ### Example
 ```shell
 kubectl port-forward svc/e2e-1 -n e2e 5566:5566
+curl http://localhost:5566/app1/v1/rolldice
 kubectl port-forward svc/e2e-2 -n e2e 5567:5566
+curl http://localhost:5567/app2/v1/rolldice
 ```
 
 
