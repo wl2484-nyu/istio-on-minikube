@@ -1,10 +1,10 @@
 DEPLOY_INFRA=$1
 DEPLOY_APP=$2
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.0.0
 NS=e2e
-APP=e2e
-SVC_1=e2e-1
-SVC_2=e2e-2
+SYS=e2e
+APP_1=rolldice-1
+APP_2=rolldice-2
 
 if [[ $DEPLOY_INFRA == "TRUE" ]]
 then
@@ -13,7 +13,7 @@ then
   minikube delete
   minikube start -p $PROFILE
 
-  # default active profile to $APP
+  # default active profile to $PROFILE
   minikube profile $PROFILE
 
   # install istio
@@ -42,25 +42,25 @@ fi
 if [[ $DEPLOY_APP == "TRUE" ]]
 then
 	# uninstall app
-	helm uninstall $APP --namespace $NS
+	helm uninstall $SYS --namespace $NS
 	sleep 5
 
 	# build app image
 	eval $(minikube -p $PROFILE docker-env)
-	docker build -t $SVC_1 ./app/rolldice
-	docker build -t $SVC_2 ./app/rolldice
+	docker build -t $APP_1 ./app/rolldice
+	docker build -t $APP_2 ./app/rolldice
 
-	# package app
-	mkdir -p charts/$APP/package
-	PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace $NS | cut -d':' -f2 | xargs`
+	# package sys app
+	mkdir -p charts/$SYS/package
+	PACKAGE=`helm package charts/$SYS --destination charts/$SYS/package --namespace $NS | cut -d':' -f2 | xargs`
 	
-	# create app namespace
+	# create sys namespace
 	kubectl apply -f kubernetes/namespace/e2e.yaml
 
 	# label node
 	#kubectl label nodes $PROFILE node-affinity=true
 
-	helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
+	helm upgrade -i $SYS $PACKAGE --namespace $NS -f charts/values.yaml
 
 	# get pods
 	sleep 5

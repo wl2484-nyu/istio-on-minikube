@@ -14,7 +14,18 @@
 
 
 # Architecture
+
+## latest (v1.1.0)
+![1.1.0](screenshots/architecture-1.1.0.jpg)
+
+## v1.0.0
 ![1.0.0](screenshots/architecture-1.0.0.jpg)
+
+
+# Trace
+
+## latest (v1.0.0)
+![1.0.0](screenshots/trace-1.0.0.jpg)
 
 
 # Build & Deployment
@@ -119,36 +130,38 @@ Rollout the latest app release, which include uninstall, build, package, and dep
 
 ### Uninstall App
 ```shell
-APP=e2e
 NS=e2e
+SYS=e2e
 
-helm uninstall $APP --namespace $NS
+helm uninstall $SYS --namespace $NS
 ```
 
 ### Build App Image
 ```shell
 PROFILE=e2e-1.0.0-1.0.0
-APP=e2e
+APP_1=rolldice-1
+APP_2=rolldice-2
 
 eval $(minikube -p $PROFILE docker-env)
-docker build -t $APP ./app
+docker build -t $APP_1 ./app/rolldice
+docker build -t $APP_2 ./app/rolldice
 ```
 
-### Package App
+### Package Sys App
 ```shell
-APP=e2e
 NS=e2e
+SYS=e2e
 
-mkdir -p charts/$APP/package
-PACKAGE=`helm package charts/$APP --destination charts/$APP/package --namespace $NS | cut -d':' -f2 | xargs`
+mkdir -p charts/$SYS/package
+PACKAGE=`helm package charts/$SYS --destination charts/$SYS/package --namespace $NS | cut -d':' -f2 | xargs`
 ```
 
-### Deploy App
+### Deploy Sys App
 ```shell
-APP=e2e
 NS=e2e
+SYS=e2e
 
-helm upgrade -i $APP $PACKAGE --namespace $NS -f charts/values.yaml
+helm upgrade -i $SYS $PACKAGE --namespace $NS -f charts/values.yaml
 ```
 
 # Testing
@@ -171,8 +184,8 @@ curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
 
 ### Example
 ```shell
-curl -H "Host: e2e-1.dtp.org" http://localhost/app1/v1/rolldice
-curl -H "Host: e2e-2.dtp.org" http://localhost/app2/v1/rolldice
+curl -H "Host: svc-1.dtp.org" http://localhost/app1/v1/rolldice
+curl -H "Host: svc-2.dtp.org" http://localhost/app2/v1/rolldice
 ```
 * No need to specify `PORT` when its value is 80
 
@@ -187,9 +200,9 @@ kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_P
 
 ### Example
 ```shell
-kubectl port-forward svc/e2e-1 -n e2e 5566:5566
+kubectl port-forward svc/svc-1 -n e2e 5566:5566
 curl http://localhost:5566/app1/v1/rolldice
-kubectl port-forward svc/e2e-2 -n e2e 5567:5567
+kubectl port-forward svc/svc-2 -n e2e 5567:5566
 curl http://localhost:5567/app2/v1/rolldice
 ```
 
