@@ -1,8 +1,10 @@
 DEPLOY_INFRA=$1
 DEPLOY_APP=$2
 PROFILE=e2e-1.0.0-1.0.0
-APP=e2e
 NS=e2e
+APP=e2e
+SVC_1=e2e-1
+SVC_2=e2e-2
 
 if [[ $DEPLOY_INFRA == "TRUE" ]]
 then
@@ -45,7 +47,8 @@ then
 
 	# build app image
 	eval $(minikube -p $PROFILE docker-env)
-	docker build -t $APP ./app
+	docker build -t $SVC_1 ./app/rolldice
+	docker build -t $SVC_2 ./app/rolldice
 
 	# package app
 	mkdir -p charts/$APP/package

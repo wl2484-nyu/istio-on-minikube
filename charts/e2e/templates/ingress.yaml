@@ -24,7 +24,7 @@ spec:
     route:
     - destination:
         port:
-          number: {{ ((index .Values.apps 0)).containerPort }}
+          number: {{ ((index .Values.deployments 0)).containerPort }}
         host: {{ ((index .Values.services 0)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
 
 ---
@@ -42,5 +42,5 @@ spec:
     route:
     - destination:
         port:
-          number: {{ ((index .Values.apps 1)).containerPort }}
+          number: {{ ((index .Values.deployments 1)).containerPort }}
         host: {{ ((index .Values.services 1)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services

@@ -18,12 +18,17 @@ import time
 import uuid
 
 
+SVC_NAME = os.getenv("SVC_NAME", "e2e")
+API_PREFIX = os.getenv("API_PREFIX", "app")
+API_VERSION = os.getenv("API_VERSION", "v1")
+
+
 # set B3 headers format
 propagate.set_global_textmap(B3MultiFormat())
 
 trace.set_tracer_provider(
     TracerProvider(
-        resource=Resource.create({SERVICE_NAME: "e2e"})
+        resource=Resource.create({SERVICE_NAME: SVC_NAME})
     )
 )
 tracer = trace.get_tracer(__name__)
@@ -44,7 +49,6 @@ roll_counter = meter.create_counter(
     description="The number of rolls by roll value",
 )
 
-# app = Flask(__name__)
 app = FastAPI()
 sub_app = FastAPI()
 
@@ -81,8 +85,8 @@ async def hello(request: Request):
     return "Let's roll the dice!"
 
 
-def do_roll(count):
-    with tracer.start_as_current_span("do_roll") as span:
+def roll(count):
+    with tracer.start_as_current_span("roll") as span:
         span.set_attribute("time", get_cur_time())
         span.set_attribute('level', 1)
         span.set_attribute('roll.count', count)
@@ -100,8 +104,8 @@ def do_roll(count):
 
 @sub_app.get("/rolldice")
 @sub_app.get("/rolldice/{count}")
-@add_b3_header("main")
-async def roll_dice(request: Request):
+@add_b3_header("rolldice")
+async def rolldice(request: Request):
     span = trace.get_current_span()
     span.set_attribute("uuid", str(uuid.uuid4()))
     span.set_attribute("time", get_cur_time())
@@ -109,7 +113,7 @@ async def roll_dice(request: Request):
 
     try:
         count = int(request.path_params['count']) if 'count' in request.path_params else 1
-        magic_rolls = do_roll(count)
+        magic_rolls = roll(count)
 
         if count < 1:
             return "Please specify a positive integer."
