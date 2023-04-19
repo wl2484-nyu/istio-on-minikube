@@ -1,16 +1,46 @@
 # Per Request Type Performance Anomaly Detection
 
 ## Progress
-> Latest Update: `04/17/23`
+> Latest Update: `04/19/23`
 
-### In-Progress
-1. App implementation
-1. Trace collection workflow implementation
+### Study/Design (Due: 04/23)
+- [x] Infrastructure: Minikube + Istio + Toy App
+- [ ] **Demo app scenario / call-path design**
+- [x] **Pull service traces from Jaeger**
+- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation**
 
-### Done
-1. Devise the demo app & request-type scenarios
-1. Design trace collection workflow with Istio on minikube
-1. Consolidate manual operations into Helm charts and deployment scripts
+### Implementation (Due: 04/29)
+- [x] Consolidate manual operations into deployment scripts with Helm
+- [ ] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
+- [ ] Python decorator: set arbitrary CPU/Mem value to trace
+  - Alternative: directly generate fake traces
+- [ ] **Demo app (single service)**
+- [ ] Demo app (multi-service) + infra
+- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation**
+- [ ] **Dashboard or Aggregate target traced into row counts**
+  - svc1,total_cpu_time,peak_mem_usage
+  - svc1_f1,svc1_f2,svc1_f3,total_cpu_time,peak_mem_usage
+  - svc1,svc2,total_cpu_time,peak_mem_usage
+  - svc1_f1,svc1_f2,svc2_f1,total_cpu_time,peak_mem_usage
+
+### E2E (Due: 04/30)
+- [ ] Scripts to carry out the demo scenario
+  - [ ] curl APIs
+  - [ ] Pull out traces from Jaeger
+  - [ ] Extract target traces
+  - [ ] Dashboard or Aggregate traces into row counts
+
+### Presentation: Poster & Report
+- [ ] Poster (Due: 05/03)
+  - [ ] Abstract
+  - [ ] Introduction
+  - [ ] Related Work
+  - [ ] Methodology
+  - [ ] Evaluations
+  - [ ] Discussions
+  - [ ] Conclusions
+- [ ] Report (Due: 05/06)
+  - Shares the same sections as those in the poster
 
 
 # Architecture
