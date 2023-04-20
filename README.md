@@ -246,3 +246,26 @@ curl http://localhost:5567/app2/v1/rolldice
    kubectl logs $pod_name
    kubectl exec -it $pod_name -- bin/bash
    ```
+3. Extract traces from Jaeger
+   * service: filter traces by service name.
+   * operation: filter traces by operation name.
+   * tags: filter traces by tags.
+   * start: start time of the query, in Unix seconds.
+   * end: end time of the query, in Unix seconds.
+   * limit: limit the number of traces returned.
+   * offset: offset the returned traces by a certain number.
+   * minDuration: minimum duration of the traces to be returned.
+   * maxDuration: maximum duration of the traces to be returned.
+   * orderBy: order the returned traces by a certain field.
+   * direction: direction of the ordering.
+
+   **Command**
+   ```shell
+   curl http://localhost:<JAEGER_PORT>/jaeger/api/traces\?service\=<SERVICE_NAME>\&start\=<START_EPOCH_TIME_MICROSEC>\&end\=<END_EPOCH_TIME_MICROSEC>\&operation\=<SUB_API_PATH>
+   ```
+   * `SUB_API_PATH`: required to apply URL escape
+
+   **Example**
+   ```shell
+   curl http://localhost:50561/jaeger/api/traces\?service\=svc-1\&start\=1681763400000000\&end\=1681764300000000\&operation\=%2Frolldice
+   ```
