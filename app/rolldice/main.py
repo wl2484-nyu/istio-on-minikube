@@ -15,8 +15,10 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 import os
 import time
-import uuid
 
+
+MILLI_SEC_FACTOR = 1000
+MICRO_SEC_FACTOR = 1000000
 
 SVC_NAME = os.getenv("SVC_NAME", "e2e")
 API_PREFIX = os.getenv("API_PREFIX", "app")
@@ -66,7 +68,7 @@ def add_b3_header(name):
         async def inner(*args, **kwargs):
             request = kwargs.get('request')
             ctx = B3MultiFormat().extract(dict(request.headers))
-            with tracer.start_as_current_span(name, context=ctx):
+            with tracer.start_as_current_span(name + "_summary", context=ctx):
                 return await f(*args, **kwargs)
         return inner
     return wrapper
@@ -74,7 +76,7 @@ def add_b3_header(name):
 
 def get_cur_time(ms=True):
     if ms:
-        return int(time.time() * 1000)
+        return int(time.time() * MILLI_SEC_FACTOR)
     else:
         return int(time.time())
 
@@ -88,7 +90,7 @@ async def hello(request: Request):
 def roll(count):
     with tracer.start_as_current_span("roll") as span:
         span.set_attribute("time", get_cur_time())
-        span.set_attribute('level', 1)
+        span.set_attribute('level', 2)
         span.set_attribute('roll.count', count)
 
         rolls = list()
@@ -106,24 +108,23 @@ def roll(count):
 @sub_app.get("/rolldice/{count}")
 @add_b3_header("rolldice")
 async def rolldice(request: Request):
-    span = trace.get_current_span()
-    span.set_attribute("uuid", str(uuid.uuid4()))
-    span.set_attribute("time", get_cur_time())
-    span.set_attribute("level", 0)
+    with tracer.start_as_current_span("rolldice") as span:
+        span.set_attribute("time", get_cur_time())
+        span.set_attribute("level", 1)
 
-    try:
-        count = int(request.path_params['count']) if 'count' in request.path_params else 1
-        magic_rolls = roll(count)
+        try:
+            count = int(request.path_params['count']) if 'count' in request.path_params else 1
+            magic_rolls = roll(count)
 
-        if count < 1:
-            return "Please specify a positive integer."
-        elif count == 1:
-            return "Your magic roll is {}".format(magic_rolls)
-        else:
-            return "Your magic rolls are {}".format(magic_rolls)
+            if count < 1:
+                return "Please specify a positive integer."
+            elif count == 1:
+                return "Your magic roll is {}".format(magic_rolls)
+            else:
+                return "Your magic rolls are {}".format(magic_rolls)
 
-    except ValueError as e:
-        return "Please specify a valid integer."
+        except ValueError as e:
+            return "Please specify a valid integer."
 
-    except Exception as e:
-        return "You've got no luck."
+        except Exception as e:
+            return "You've got no luck."
