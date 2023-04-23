@@ -90,7 +90,7 @@ def add_b3_header(f):
     return inner
 
 
-def add_performance_metrics_sync(f):
+def trace_performance_sync(f):
     @wraps(f)
     def inner(*args, **kwargs):
         request = kwargs.get('request')
@@ -105,7 +105,7 @@ def add_performance_metrics_sync(f):
     return inner
 
 
-def add_performance_metrics(f):
+def trace_performance_async(f):
     @wraps(f)
     async def inner(*args, **kwargs):
         with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
@@ -132,7 +132,7 @@ async def hello(request: Request):
     return "Let's roll the dice!"
 
 
-@add_performance_metrics_sync
+@trace_performance_sync
 def roll(count):
     with tracer.start_as_current_span("roll") as span:
         span.set_attribute("start_time", get_cur_time())
@@ -153,7 +153,7 @@ def roll(count):
 @sub_app.get("/rolldice")
 @sub_app.get("/rolldice/{count}")
 @add_b3_header
-@add_performance_metrics
+@trace_performance_async
 async def rolldice(request: Request):
     with tracer.start_as_current_span("rolldice") as span:
         span.set_attribute("start_time", get_cur_time())
