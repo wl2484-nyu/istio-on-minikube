@@ -1,12 +1,9 @@
 import os
 import time
-from functools import wraps
 from random import randint
 
 from fastapi import FastAPI, Request
-from opentelemetry import context, trace
-from opentelemetry import metrics
-from opentelemetry import propagate
+from opentelemetry import metrics, trace, propagate
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.propagators.b3 import B3MultiFormat
@@ -14,8 +11,9 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+from performance_tracer import add_b3_header, trace_performance_async, trace_performance_sync
+
 MILLI_SEC_FACTOR = 1000
-MICRO_SEC_FACTOR = 1000000
 
 SVC_NAME = os.getenv("SVC_NAME", "e2e")
 API_PREFIX = os.getenv("API_PREFIX", "app")
@@ -56,66 +54,6 @@ app.mount("{}/{}".format(API_PREFIX, API_VERSION), sub_app)
 print("URI PREFIX: {}/{}".format(API_PREFIX, API_VERSION))
 
 FastAPIInstrumentor.instrument_app(app)
-
-
-def add_b3_header(f):
-    @wraps(f)
-    async def inner(*args, **kwargs):
-        request = kwargs.get('request')
-        """ [Example]
-        request.headers = 
-        {
-          "host": "svc-1.dtp.org",
-          "user-agent": "curl/7.87.0",
-          "accept": "*/*",
-          "x-forwarded-for": "10.244.0.1",
-          "x-forwarded-proto": "http",
-          "x-request-id": "022151ab-3a51-9018-9f6d-e63af3b29a8b",
-          "x-envoy-attempt-count": "1",
-          "x-envoy-internal": "true",
-          "x-forwarded-client-cert": "By=spiffe://cluster.local/ns/e2e/sa/default;Hash=ae960b05fdad696034d38c346fc92f6e5a8405b1de4663c38ca05a6dda09caf5;Subject=\"\";URI=spiffe://cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account",
-          "x-b3-traceid": "a53f0d4604621cde3840400b055fb50d",
-          "x-b3-spanid": "e694b9d15adf6119",
-          "x-b3-parentspanid": "3840400b055fb50d",
-          "x-b3-sampled": "1"
-        }
-        """
-        ctx = B3MultiFormat().extract(dict(request.headers))
-        with tracer.start_as_current_span(f.__name__ + "_summary", context=ctx):
-            return await f(*args, **kwargs)
-
-    return inner
-
-
-def trace_performance_sync(f):
-    @wraps(f)
-    def inner(*args, **kwargs):
-        request = kwargs.get('request')
-        with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
-            span.set_attribute("service", SVC_NAME)
-            span.set_attribute("function", f.__name__)
-            start_time = time.monotonic()
-            r = f(*args, **kwargs)
-            full_duration = time.monotonic() - start_time
-            span.set_attribute("exec_ms", full_duration * MILLI_SEC_FACTOR)
-            return r
-
-    return inner
-
-
-def trace_performance_async(f):
-    @wraps(f)
-    async def inner(*args, **kwargs):
-        with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
-            span.set_attribute("service", SVC_NAME)
-            span.set_attribute("function", f.__name__)
-            start_time = time.monotonic()
-            r = await f(*args, **kwargs)
-            full_duration = time.monotonic() - start_time
-            span.set_attribute("exec_ms", full_duration * MILLI_SEC_FACTOR)
-            return r
-
-    return inner
 
 
 def get_cur_time(ms=True):

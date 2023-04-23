@@ -47,6 +47,7 @@ then
 
 	# build app image
 	eval $(minikube -p $PROFILE docker-env)
+	#cp ./app/performance_tracer.py ./app/rolldice/
 	docker build -t $APP_1 ./app/rolldice
 	docker build -t $APP_2 ./app/rolldice
 
