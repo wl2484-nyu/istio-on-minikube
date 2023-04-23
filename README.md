@@ -54,7 +54,10 @@
 
 # Trace
 
-## latest (v1.0.0)
+## latest (v1.0.1)
+![1.0.1](screenshots/trace-1.0.1.jpg)
+
+## v1.0.0
 ![1.0.0](screenshots/trace-1.0.0.jpg)
 
 
@@ -97,7 +100,7 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 Create a Minikube single-node cluster, and set it to active.
 
 ```shell
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.0.1
 
 # create cluster
 minikube profile $PROFILE
@@ -112,7 +115,7 @@ minikube profile $PROFILE
 Deploy Istio and addon dashboards (such as prometheus, grafana, jaeger, and kiali).
 
 ```shell
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.0.1
 
 # install istio dashboard addons
 kubectl apply -f kubernetes/addons/prometheus.yaml
@@ -168,7 +171,7 @@ helm uninstall $SYS --namespace $NS
 
 ### Build App Image
 ```shell
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.0.1
 APP_1=rolldice-1
 APP_2=rolldice-2
 
