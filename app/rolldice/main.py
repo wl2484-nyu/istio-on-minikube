@@ -24,6 +24,9 @@ SVC_NAME = os.getenv("SVC_NAME", "e2e")
 API_PREFIX = os.getenv("API_PREFIX", "app")
 API_VERSION = os.getenv("API_VERSION", "v1")
 
+# os.environ["OTEL_PYTHON_ADJUST_CLOCK_SKEW"] = "False"
+# os.environ["OTEL_PYTHON_CLOCK_OVERRIDE"] = "True"
+
 
 # set B3 headers format
 propagate.set_global_textmap(B3MultiFormat())
@@ -62,16 +65,32 @@ print("URI PREFIX: {}/{}".format(API_PREFIX, API_VERSION))
 FastAPIInstrumentor.instrument_app(app)
 
 
-def add_b3_header(name):
-    def wrapper(f):
-        @wraps(f)
-        async def inner(*args, **kwargs):
-            request = kwargs.get('request')
-            ctx = B3MultiFormat().extract(dict(request.headers))
-            with tracer.start_as_current_span(name + "_summary", context=ctx):
-                return await f(*args, **kwargs)
-        return inner
-    return wrapper
+def add_b3_header(f):
+    @wraps(f)
+    async def inner(*args, **kwargs):
+        request = kwargs.get('request')
+        """ [Example]
+        request.headers = 
+        {
+          "host": "svc-1.dtp.org",
+          "user-agent": "curl/7.87.0",
+          "accept": "*/*",
+          "x-forwarded-for": "10.244.0.1",
+          "x-forwarded-proto": "http",
+          "x-request-id": "022151ab-3a51-9018-9f6d-e63af3b29a8b",
+          "x-envoy-attempt-count": "1",
+          "x-envoy-internal": "true",
+          "x-forwarded-client-cert": "By=spiffe://cluster.local/ns/e2e/sa/default;Hash=ae960b05fdad696034d38c346fc92f6e5a8405b1de4663c38ca05a6dda09caf5;Subject=\"\";URI=spiffe://cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account",
+          "x-b3-traceid": "a53f0d4604621cde3840400b055fb50d",
+          "x-b3-spanid": "e694b9d15adf6119",
+          "x-b3-parentspanid": "3840400b055fb50d",
+          "x-b3-sampled": "1"
+        }
+        """
+        ctx = B3MultiFormat().extract(dict(request.headers))
+        with tracer.start_as_current_span(f.__name__ + "_summary", context=ctx):
+            return await f(*args, **kwargs)
+    return inner
 
 
 def get_cur_time(ms=True):
@@ -89,8 +108,7 @@ async def hello(request: Request):
 
 def roll(count):
     with tracer.start_as_current_span("roll") as span:
-        span.set_attribute("time", get_cur_time())
-        span.set_attribute('level', 2)
+        span.set_attribute("start_time", get_cur_time())
         span.set_attribute('roll.count', count)
 
         rolls = list()
@@ -101,30 +119,34 @@ def roll(count):
 
         rolls_str = ', '.join(rolls)
         span.set_attribute("roll.value", rolls_str)
+        span.set_attribute("end_time", get_cur_time())
         return rolls_str
 
 
 @sub_app.get("/rolldice")
 @sub_app.get("/rolldice/{count}")
-@add_b3_header("rolldice")
+@add_b3_header
 async def rolldice(request: Request):
     with tracer.start_as_current_span("rolldice") as span:
-        span.set_attribute("time", get_cur_time())
-        span.set_attribute("level", 1)
+        span.set_attribute("start_time", get_cur_time())
+        res = None
 
         try:
             count = int(request.path_params['count']) if 'count' in request.path_params else 1
             magic_rolls = roll(count)
 
             if count < 1:
-                return "Please specify a positive integer."
+                res = "Please specify a positive integer."
             elif count == 1:
-                return "Your magic roll is {}".format(magic_rolls)
+                res = "Your magic roll is {}".format(magic_rolls)
             else:
-                return "Your magic rolls are {}".format(magic_rolls)
+                res = "Your magic rolls are {}".format(magic_rolls)
 
         except ValueError as e:
-            return "Please specify a valid integer."
+            res = "Please specify a valid integer."
 
         except Exception as e:
-            return "You've got no luck."
+            res = "You've got no luck."
+
+        span.set_attribute("end_time", get_cur_time())
+        return res
