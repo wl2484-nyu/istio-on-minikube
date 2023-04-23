@@ -5,7 +5,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.propagators.b3 import B3MultiFormat
 from opentelemetry import propagate
 
-from opentelemetry import trace
+from opentelemetry import context, trace
 from opentelemetry import metrics
 
 from random import randint
@@ -23,9 +23,6 @@ MICRO_SEC_FACTOR = 1000000
 SVC_NAME = os.getenv("SVC_NAME", "e2e")
 API_PREFIX = os.getenv("API_PREFIX", "app")
 API_VERSION = os.getenv("API_VERSION", "v1")
-
-# os.environ["OTEL_PYTHON_ADJUST_CLOCK_SKEW"] = "False"
-# os.environ["OTEL_PYTHON_CLOCK_OVERRIDE"] = "True"
 
 
 # set B3 headers format
@@ -93,6 +90,35 @@ def add_b3_header(f):
     return inner
 
 
+def add_performance_metrics_sync(f):
+    @wraps(f)
+    def inner(*args, **kwargs):
+        request = kwargs.get('request')
+        with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
+            span.set_attribute("service", SVC_NAME)
+            span.set_attribute("function", f.__name__)
+            start_time = time.monotonic()
+            r = f(*args, **kwargs)
+            full_duration = time.monotonic() - start_time
+            span.set_attribute("exec_ms", full_duration * MILLI_SEC_FACTOR)
+            return r
+    return inner
+
+
+def add_performance_metrics(f):
+    @wraps(f)
+    async def inner(*args, **kwargs):
+        with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
+            span.set_attribute("service", SVC_NAME)
+            span.set_attribute("function", f.__name__)
+            start_time = time.monotonic()
+            r = await f(*args, **kwargs)
+            full_duration = time.monotonic() - start_time
+            span.set_attribute("exec_ms", full_duration * MILLI_SEC_FACTOR)
+            return r
+    return inner
+
+
 def get_cur_time(ms=True):
     if ms:
         return int(time.time() * MILLI_SEC_FACTOR)
@@ -106,6 +132,7 @@ async def hello(request: Request):
     return "Let's roll the dice!"
 
 
+@add_performance_metrics_sync
 def roll(count):
     with tracer.start_as_current_span("roll") as span:
         span.set_attribute("start_time", get_cur_time())
@@ -126,6 +153,7 @@ def roll(count):
 @sub_app.get("/rolldice")
 @sub_app.get("/rolldice/{count}")
 @add_b3_header
+@add_performance_metrics
 async def rolldice(request: Request):
     with tracer.start_as_current_span("rolldice") as span:
         span.set_attribute("start_time", get_cur_time())
