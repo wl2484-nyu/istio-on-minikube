@@ -1,21 +1,18 @@
+import os
+import time
+from functools import wraps
+from random import randint
+
+from fastapi import FastAPI, Request
+from opentelemetry import context, trace
+from opentelemetry import metrics
+from opentelemetry import propagate
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.propagators.b3 import B3MultiFormat
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.propagators.b3 import B3MultiFormat
-from opentelemetry import propagate
-
-from opentelemetry import context, trace
-from opentelemetry import metrics
-
-from random import randint
-from functools import wraps
-from fastapi import FastAPI, Request
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
-import os
-import time
-
 
 MILLI_SEC_FACTOR = 1000
 MICRO_SEC_FACTOR = 1000000
@@ -23,7 +20,6 @@ MICRO_SEC_FACTOR = 1000000
 SVC_NAME = os.getenv("SVC_NAME", "e2e")
 API_PREFIX = os.getenv("API_PREFIX", "app")
 API_VERSION = os.getenv("API_VERSION", "v1")
-
 
 # set B3 headers format
 propagate.set_global_textmap(B3MultiFormat())
@@ -87,6 +83,7 @@ def add_b3_header(f):
         ctx = B3MultiFormat().extract(dict(request.headers))
         with tracer.start_as_current_span(f.__name__ + "_summary", context=ctx):
             return await f(*args, **kwargs)
+
     return inner
 
 
@@ -102,6 +99,7 @@ def trace_performance_sync(f):
             full_duration = time.monotonic() - start_time
             span.set_attribute("exec_ms", full_duration * MILLI_SEC_FACTOR)
             return r
+
     return inner
 
 
@@ -116,6 +114,7 @@ def trace_performance_async(f):
             full_duration = time.monotonic() - start_time
             span.set_attribute("exec_ms", full_duration * MILLI_SEC_FACTOR)
             return r
+
     return inner
 
 
