@@ -1,6 +1,6 @@
 DEPLOY_INFRA=$1
 DEPLOY_APP=$2
-PROFILE=e2e-1.1.0-1.0.1
+PROFILE=e2e-1.1.0-1.1.0
 NS=e2e
 SYS=e2e
 APP_1=rolldice-1

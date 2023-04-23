@@ -69,10 +69,13 @@ def trace_performance_sync(f):
         request = kwargs.get('request')
         with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
             span.set_attribute("function.name", f.__name__)
-            start_time = time.monotonic()
+            start_exec_time = time.monotonic()
+            start_cpu_time = time.process_time()
             r = f(*args, **kwargs)
-            full_duration = time.monotonic() - start_time
-            span.set_attribute("exec.ms", full_duration * MILLI_SEC_FACTOR)
+            cpu_time = time.process_time() - start_cpu_time
+            exec_time = time.monotonic() - start_exec_time
+            span.set_attribute("cpu.ms", cpu_time * MILLI_SEC_FACTOR)
+            span.set_attribute("exec.ms", exec_time * MILLI_SEC_FACTOR)
             return r
 
     return inner
@@ -83,10 +86,13 @@ def trace_performance_async(f):
     async def inner(*args, **kwargs):
         with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
             span.set_attribute("function.name", f.__name__)
-            start_time = time.monotonic()
+            start_exec_time = time.monotonic()
+            start_cpu_time = time.process_time()
             r = await f(*args, **kwargs)
-            full_duration = time.monotonic() - start_time
-            span.set_attribute("exec.ms", full_duration * MILLI_SEC_FACTOR)
+            cpu_time = time.process_time() - start_cpu_time
+            exec_time = time.monotonic() - start_exec_time
+            span.set_attribute("cpu.ms", cpu_time * MILLI_SEC_FACTOR)
+            span.set_attribute("exec.ms", exec_time * MILLI_SEC_FACTOR)
             return r
 
     return inner
