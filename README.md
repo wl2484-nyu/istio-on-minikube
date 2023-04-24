@@ -1,7 +1,7 @@
 # Per Request Type Performance Anomaly Detection
 
 ## Progress
-> Latest Update: `04/19/23`
+> Latest Update: `04/23/23`
 
 ### Study/Design (Due: 04/23)
 - [x] Infrastructure: Minikube + Istio + Toy App
@@ -11,7 +11,7 @@
 
 ### Implementation (Due: 04/29)
 - [x] Consolidate manual operations into deployment scripts with Helm
-- [ ] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
+- [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
 - [ ] Python decorator: set arbitrary CPU/Mem value to trace
   - Alternative: directly generate fake traces
 - [ ] **Demo app (single service)**
