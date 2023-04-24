@@ -1,6 +1,6 @@
 import os
+import psutil
 import time
-import tracemalloc
 from functools import wraps
 
 from opentelemetry import context, trace, propagate
@@ -64,6 +64,14 @@ def add_b3_header(f):
     return inner
 
 
+def bytes_to_kb(bytes):
+    return bytes / 1024
+
+
+def bytes_to_mb(bytes):
+    return bytes_to_kb(bytes) / 1024
+
+
 def trace_performance_sync(f):
     @wraps(f)
     def inner(*args, **kwargs):
@@ -71,7 +79,7 @@ def trace_performance_sync(f):
         with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
             span.set_attribute("function.name", f.__name__)
 
-            tracemalloc.start()
+            start_memory = psutil.Process().memory_info().rss
             start_exec_time = time.monotonic()
             start_cpu_time = time.process_time()
 
@@ -79,16 +87,11 @@ def trace_performance_sync(f):
 
             cpu_time = time.process_time() - start_cpu_time
             exec_time = time.monotonic() - start_exec_time
-
-            if tracemalloc.is_tracing():
-                _, peak_mem = tracemalloc.get_traced_memory()
-                span.set_attribute("peak_mem.byte", peak_mem)
-            else:
-                raise RuntimeError("tracemalloc is not tracing memory allocations")
-            tracemalloc.stop()
+            peak_mem = psutil.Process().memory_info().rss - start_memory
 
             span.set_attribute("cpu.ms", cpu_time * MILLI_SEC_FACTOR)
             span.set_attribute("exec.ms", exec_time * MILLI_SEC_FACTOR)
+            span.set_attribute("peak_mem.kb", peak_mem)
             return r
 
     return inner
@@ -100,7 +103,7 @@ def trace_performance_async(f):
         with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
             span.set_attribute("function.name", f.__name__)
 
-            tracemalloc.start()
+            start_memory = psutil.Process().memory_info().rss
             start_exec_time = time.monotonic()
             start_cpu_time = time.process_time()
 
@@ -108,16 +111,11 @@ def trace_performance_async(f):
 
             cpu_time = time.process_time() - start_cpu_time
             exec_time = time.monotonic() - start_exec_time
-
-            if tracemalloc.is_tracing():
-                _, peak_mem = tracemalloc.get_traced_memory()
-                span.set_attribute("peak_mem.byte", peak_mem)
-            else:
-                raise RuntimeError("tracemalloc is not tracing memory allocations")
-            tracemalloc.stop()
+            peak_mem = psutil.Process().memory_info().rss - start_memory
 
             span.set_attribute("cpu.ms", cpu_time * MILLI_SEC_FACTOR)
             span.set_attribute("exec.ms", exec_time * MILLI_SEC_FACTOR)
+            span.set_attribute("peak_mem.kb", peak_mem)
             return r
 
     return inner
