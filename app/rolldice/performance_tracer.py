@@ -89,9 +89,6 @@ def trace_performance_sync(f):
 
             cpu_time = time.process_time() - start_cpu_time
             exec_time = time.monotonic() - start_exec_time
-            # snapshot = tracemalloc.take_snapshot()
-            # top_stats = snapshot.statistics('lineno')
-            # peak_mem = bytes_to_kb(max(stat.size for stat in top_stats))
             _, peak_mem = tracemalloc.get_traced_memory()
             if not flag:
                 tracemalloc.stop()
@@ -120,9 +117,6 @@ def trace_performance_async(f):
 
             cpu_time = time.process_time() - start_cpu_time
             exec_time = time.monotonic() - start_exec_time
-            # snapshot = tracemalloc.take_snapshot()
-            # top_stats = snapshot.statistics('lineno')
-            # peak_mem = bytes_to_kb(max(stat.size for stat in top_stats))
             _, peak_mem = tracemalloc.get_traced_memory()
             if not flag:
                 tracemalloc.stop()
