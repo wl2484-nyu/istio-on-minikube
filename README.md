@@ -44,27 +44,13 @@
 
 
 # Architecture
-
 ## latest (v1.1.0)
 ![1.1.0](screenshots/architecture-1.1.0.jpg)
 
-## v1.0.0
-![1.0.0](screenshots/architecture-1.0.0.jpg)
-
 
 # Trace
-
 ## latest (v1.1.1)
 ![1.1.1](screenshots/trace-1.1.1.jpg)
-
-## v1.1.0
-![1.1.0](screenshots/trace-1.1.0.jpg)
-
-## v1.0.1
-![1.0.1](screenshots/trace-1.0.1.jpg)
-
-## v1.0.0
-![1.0.0](screenshots/trace-1.0.0.jpg)
 
 
 # Build & Deployment
