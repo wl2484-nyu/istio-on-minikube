@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import time
 from random import randint
@@ -81,8 +82,8 @@ def roll(count):
             rolls.append(str(res))
             roll_counter.add(1, {"roll.value": res})
 
-        arr = [i for i in range(1024)]
-        span.set_attribute("toy_sum", sum(arr))
+        arr = np.ones(1024, dtype=int)
+        span.set_attribute("toy_sum", int(arr.sum()))
 
         rolls_str = ', '.join(rolls)
         span.set_attribute("roll.value", rolls_str)
@@ -103,8 +104,8 @@ async def rolldice(request: Request):
             count = int(request.path_params['count']) if 'count' in request.path_params else 1
             magic_rolls = roll(count)
 
-            arr = [i for i in range(1024)]
-            for i in range(len(arr)):
+            arr = np.ones(256, dtype=int)
+            for i in range(arr.shape[0]):
                 arr[i] += 1
 
             if count < 1:

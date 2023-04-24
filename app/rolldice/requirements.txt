@@ -1,5 +1,5 @@
 fastapi
-psutil
+numpy
 uvicorn
 opentelemetry-api
 opentelemetry-sdk
