@@ -81,6 +81,9 @@ def roll(count):
             rolls.append(str(res))
             roll_counter.add(1, {"roll.value": res})
 
+        arr = [i for i in range(1024)]
+        span.set_attribute("toy_sum", sum(arr))
+
         rolls_str = ', '.join(rolls)
         span.set_attribute("roll.value", rolls_str)
         span.set_attribute("end_time", get_cur_time())
@@ -99,6 +102,10 @@ async def rolldice(request: Request):
         try:
             count = int(request.path_params['count']) if 'count' in request.path_params else 1
             magic_rolls = roll(count)
+
+            arr = [i for i in range(1024)]
+            for i in range(len(arr)):
+                arr[i] += 1
 
             if count < 1:
                 res = "Please specify a positive integer."
