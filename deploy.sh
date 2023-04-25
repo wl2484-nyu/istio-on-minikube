@@ -3,8 +3,8 @@ DEPLOY_APP=$2
 PROFILE=e2e-1.1.0-1.1.1
 NS=e2e
 SYS=e2e
-APP_1=rolldice-1
-APP_2=rolldice-2
+APP_A=rolldice-a
+APP_B=rolldice-b
 
 if [[ $DEPLOY_INFRA == "TRUE" ]]
 then
@@ -48,8 +48,8 @@ then
 	# build app image
 	eval $(minikube -p $PROFILE docker-env)
 	#cp ./app/performance_tracer.py ./app/rolldice/
-	docker build -t $APP_1 ./app/rolldice
-	docker build -t $APP_2 ./app/rolldice
+	docker build -t $APP_A ./app/rolldice
+	docker build -t $APP_B ./app/rolldice
 
 	# package sys app
 	mkdir -p charts/$SYS/package

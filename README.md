@@ -163,12 +163,12 @@ helm uninstall $SYS --namespace $NS
 ### Build App Image
 ```shell
 PROFILE=e2e-1.1.0-1.1.1
-APP_1=rolldice-1
-APP_2=rolldice-2
+APP_A=rolldice-A
+APP_B=rolldice-B
 
 eval $(minikube -p $PROFILE docker-env)
-docker build -t $APP_1 ./app/rolldice
-docker build -t $APP_2 ./app/rolldice
+docker build -t $APP_A ./app/rolldice
+docker build -t $APP_B ./app/rolldice
 ```
 
 ### Package Sys App
