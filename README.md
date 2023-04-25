@@ -5,19 +5,18 @@
 
 ### Study/Design (Due: 04/23)
 - [x] Infrastructure: Minikube + Istio + Toy App
-- [ ] **Demo app scenario / call-path design**
+- [x] **Demo app scenario / call-path design** (04/24)
 - [x] **Pull service traces from Jaeger**
-- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation**
+- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation** (04/28)
 
 ### Implementation (Due: 04/29)
 - [x] Consolidate manual operations into deployment scripts with Helm
 - [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
 - [ ] Python decorator: set arbitrary CPU/Mem value to trace
   - Alternative: directly generate fake traces
-- [ ] **Demo app (single service)**
-- [ ] Demo app (multi-service) + infra
-- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation**
-- [ ] **Dashboard or Aggregate target traced into row counts**
+- [ ] **Demo app (multi-service) + infra** (04/25)
+- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation** (04/25)
+- [ ] **Dashboard or Aggregate target traced into row counts** (04/29)
   - svc1,total_cpu_time,peak_mem_usage
   - svc1_f1,svc1_f2,svc1_f3,total_cpu_time,peak_mem_usage
   - svc1,svc2,total_cpu_time,peak_mem_usage
