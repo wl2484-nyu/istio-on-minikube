@@ -5,6 +5,9 @@ NS=e2e
 SYS=e2e
 APP_A=rolldice-a
 APP_B=rolldice-b
+DEFAULT_MODULE_NAME=main
+DEFAULT_APP_NAME=app
+DEFAULT_PORT=5566
 
 if [[ $DEPLOY_INFRA == "TRUE" ]]
 then
@@ -48,8 +51,8 @@ then
 	# build app image
 	eval $(minikube -p $PROFILE docker-env)
 	#cp ./app/performance_tracer.py ./app/rolldice/
-	docker build -t $APP_A ./app/rolldice
-	docker build -t $APP_B ./app/rolldice
+	docker build --build-arg DEFAULT_MODULE_NAME=$DEFAULT_MODULE_NAME --build-arg DEFAULT_APP_NAME=$DEFAULT_APP_NAME --build-arg DEFAULT_PORT=$DEFAULT_PORT -t $APP_A ./app/rolldice
+	docker build --build-arg DEFAULT_MODULE_NAME="$DEFAULT_MODULE_NAME" --build-arg DEFAULT_APP_NAME="$DEFAULT_APP_NAME" --build-arg DEFAULT_PORT="$DEFAULT_PORT" -t $APP_B ./app/rolldice
 
 	# package sys app
 	mkdir -p charts/$SYS/package
