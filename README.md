@@ -1,7 +1,7 @@
 # Per Request Type Performance Anomaly Detection
 
 ## Progress
-> Latest Update: `04/19/23`
+> Latest Update: `04/23/23`
 
 ### Study/Design (Due: 04/23)
 - [x] Infrastructure: Minikube + Istio + Toy App
@@ -11,7 +11,7 @@
 
 ### Implementation (Due: 04/29)
 - [x] Consolidate manual operations into deployment scripts with Helm
-- [ ] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
+- [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
 - [ ] Python decorator: set arbitrary CPU/Mem value to trace
   - Alternative: directly generate fake traces
 - [ ] **Demo app (single service)**
@@ -44,18 +44,13 @@
 
 
 # Architecture
-
 ## latest (v1.1.0)
 ![1.1.0](screenshots/architecture-1.1.0.jpg)
 
-## v1.0.0
-![1.0.0](screenshots/architecture-1.0.0.jpg)
-
 
 # Trace
-
-## latest (v1.0.0)
-![1.0.0](screenshots/trace-1.0.0.jpg)
+## latest (v1.1.1)
+![1.1.1](screenshots/trace-1.1.1.jpg)
 
 
 # Build & Deployment
@@ -97,7 +92,7 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 Create a Minikube single-node cluster, and set it to active.
 
 ```shell
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.1.1
 
 # create cluster
 minikube profile $PROFILE
@@ -112,7 +107,7 @@ minikube profile $PROFILE
 Deploy Istio and addon dashboards (such as prometheus, grafana, jaeger, and kiali).
 
 ```shell
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.1.1
 
 # install istio dashboard addons
 kubectl apply -f kubernetes/addons/prometheus.yaml
@@ -168,7 +163,7 @@ helm uninstall $SYS --namespace $NS
 
 ### Build App Image
 ```shell
-PROFILE=e2e-1.0.0-1.0.0
+PROFILE=e2e-1.1.0-1.1.1
 APP_1=rolldice-1
 APP_2=rolldice-2
 
