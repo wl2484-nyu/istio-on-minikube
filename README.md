@@ -9,9 +9,9 @@
 - [x] **Pull service traces from Jaeger**
 - [ ] **Extract target traces from all traces pulled from Jaeger for aggregation** (04/29)
 
-### Implementation (Due: 04/29)
+### Implementation (Due: 04/30)
 - [x] Consolidate manual operations into deployment scripts with Helm
-- [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace**
+- [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace** (04/24)
 - [ ] Python decorator: set arbitrary CPU/Mem value to trace
   - Alternative: directly generate fake traces
 - [ ] **Demo app (multi-service) + infra** (04/27)
