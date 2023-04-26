@@ -1,20 +1,21 @@
+DEFAULT_SYS=multi-svc
+TOY_SYS=toy
+PROFILE=e2e-2.0.0-1.1.2
+NS=e2e
+
 DEPLOY_INFRA=$1
 DEPLOY_APP=$2
-PROFILE=e2e-1.1.0-1.1.1
-NS=e2e
-SYS=e2e
-APP_1=rolldice-1
-APP_2=rolldice-2
+SYS="${3:-$DEFAULT_SYS}"
+
 
 if [[ $DEPLOY_INFRA == "TRUE" ]]
 then
-  # create cluster
-  minikube profile $PROFILE
-  minikube delete
-  minikube start -p $PROFILE
+  # re-create a new cluster
+  minikube delete --all
+  minikube start -p "$PROFILE"
 
   # default active profile to $PROFILE
-  minikube profile $PROFILE
+  minikube profile "$PROFILE"
 
   # install istio
   istioctl install --set profile=demo -y
@@ -34,36 +35,91 @@ then
   #minikube service kiali -n istio-system --url
 
   # enable addons
-  minikube -p $PROFILE addons enable dashboard
-  minikube -p $PROFILE addons enable metrics-server
-  minikube -p $PROFILE addons enable istio
+  minikube -p "$PROFILE" addons enable dashboard
+  minikube -p "$PROFILE" addons enable metrics-server
+  minikube -p "$PROFILE" addons enable istio
 fi
 
-if [[ $DEPLOY_APP == "TRUE" ]]
+if [[ $SYS == "$DEFAULT_SYS" ]]
 then
-	# uninstall app
-	helm uninstall $SYS --namespace $NS
-	sleep 5
+  # build & deploy scripts for the multi-svc apps
 
-	# build app image
-	eval $(minikube -p $PROFILE docker-env)
-	#cp ./app/performance_tracer.py ./app/rolldice/
-	docker build -t $APP_1 ./app/rolldice
-	docker build -t $APP_2 ./app/rolldice
+  if [[ $DEPLOY_APP == "TRUE" ]]
+  then
+    DEFAULT_MODULE_NAME=main
+    DEFAULT_APP_NAME=app
+    DEFAULT_PORT=5566
 
-	# package sys app
-	mkdir -p charts/$SYS/package
-	PACKAGE=`helm package charts/$SYS --destination charts/$SYS/package --namespace $NS | cut -d':' -f2 | xargs`
-	
-	# create sys namespace
-	kubectl apply -f kubernetes/namespace/e2e.yaml
+    # build app image
+    eval "$(minikube -p $PROFILE docker-env)"
+    for i in a b; do
+      mkdir -p "app/svcs/svc_$i";
+      cp "app/svcs/svc_$i.py" "app/svcs/svc_$i/main.py"
+      cp "app/svcs/performance_tracer.py" "app/svcs/svc_$i/"
+      cp "app/svcs/Dockerfile.template" "app/svcs/svc_$i/Dockerfile"
+      cp "app/svcs/requirements.txt.template" "app/svcs/svc_$i/requirements.txt"
+      docker build --build-arg DEFAULT_MODULE_NAME=$DEFAULT_MODULE_NAME --build-arg DEFAULT_APP_NAME=$DEFAULT_APP_NAME --build-arg DEFAULT_PORT=$DEFAULT_PORT -t "svc-$i" "./app/svcs/svc_$i";
+    done
 
-	# label node
-	#kubectl label nodes $PROFILE node-affinity=true
+    # create sys namespace
+    kubectl apply -f "kubernetes/namespace/$NS.yaml"
 
-	helm upgrade -i $SYS $PACKAGE --namespace $NS -f charts/values.yaml
+    # uninstall app
+    helm uninstall "$SYS" --namespace "$NS"
+    sleep 5
 
-	# get pods
-	sleep 5
-	kubectl get pods -n $NS
+    # package sys app
+    mkdir -p "charts/$SYS/package"
+    PACKAGE=$(helm package "charts/$SYS" --destination "charts/$SYS/package" --namespace "$NS" | cut -d':' -f2 | xargs)
+
+    # label node
+    #kubectl label nodes "$PROFILE" node-affinity=true
+
+    helm upgrade -i "$SYS" "$PACKAGE" --namespace "$NS" -f "charts/values.$SYS.yaml"
+
+    # get pods
+    sleep 5
+    kubectl get pods -n "$NS"
+  fi
+
+elif [[ $SYS == "$TOY_SYS" ]]
+then
+  # build & deploy scripts for the rolldice toy app
+
+  if [[ $DEPLOY_APP == "TRUE" ]]
+  then
+    DEFAULT_MODULE_NAME=main
+    DEFAULT_APP_NAME=app
+    DEFAULT_PORT=5566
+    APP_A=rolldice-a
+    APP_B=rolldice-b
+
+    # build app image
+    eval "$(minikube -p $PROFILE docker-env)"
+    docker build --build-arg DEFAULT_MODULE_NAME=$DEFAULT_MODULE_NAME --build-arg DEFAULT_APP_NAME=$DEFAULT_APP_NAME --build-arg DEFAULT_PORT=$DEFAULT_PORT -t $APP_A ./app/rolldice
+    docker build --build-arg DEFAULT_MODULE_NAME="$DEFAULT_MODULE_NAME" --build-arg DEFAULT_APP_NAME="$DEFAULT_APP_NAME" --build-arg DEFAULT_PORT="$DEFAULT_PORT" -t $APP_B ./app/rolldice
+
+    # create sys namespace
+    kubectl apply -f "kubernetes/namespace/$NS.yaml"
+
+    # uninstall app
+    helm uninstall "$SYS" --namespace "$NS"
+    sleep 5
+
+    # package sys app
+    mkdir -p "charts/$SYS/package"
+    PACKAGE=$(helm package "charts/$SYS" --destination "charts/$SYS/package" --namespace "$NS" | cut -d':' -f2 | xargs)
+
+    # label node
+    #kubectl label nodes "$PROFILE" node-affinity=true
+
+    helm upgrade -i "$SYS" "$PACKAGE" --namespace "$NS" -f "charts/values.$SYS.yaml"
+
+    # get pods
+    sleep 5
+    kubectl get pods -n "$NS"
+  fi
+
+else
+  echo "SYS=$SYS not found!"
 fi

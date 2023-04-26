@@ -13,7 +13,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 MILLI_SEC_FACTOR = 1000
 MICRO_SEC_FACTOR = 1000000
 
-SVC_NAME = os.getenv("SVC_NAME", "toy")
+SVC_NAME = os.getenv("SVC_NAME", "svcs")
 
 # set B3 headers format
 propagate.set_global_textmap(B3MultiFormat())
