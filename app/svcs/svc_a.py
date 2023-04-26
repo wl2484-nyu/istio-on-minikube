@@ -34,7 +34,8 @@ FastAPIInstrumentor.instrument_app(app)
 async def a1(request: Request):
     chunks = DOWNSTREAM_SVCS[0].split(":")
     print("{}/b1".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
-    res = requests.get("{}/b1".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])), timeout=TIMEOUT_SEC)
+    res = requests.get("{}/b1".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])), timeout=TIMEOUT_SEC,
+                       headers=request.headers) # carry existing headers to include children spans in the trace
     # print("{}/b1".format(URL_TEMPLATE.format(chunks[1])))
     # res = requests.get("{}/b1".format(URL_TEMPLATE.format(chunks[1])),
     #                    headers={"Host": "app-b.dtp.org"}, timeout=TIMEOUT_SEC)
