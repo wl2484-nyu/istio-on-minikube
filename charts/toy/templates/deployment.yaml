@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ ((index .Values.deployments 0)).name }}
-  namespace: {{ .Chart.Name }}
+  namespace: {{ .Values.namespace }}
   labels:
     app: {{ ((index .Values.deployments 0)).name }}
     version: {{ ((index .Values.deployments 0)).version }}
@@ -45,7 +45,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ ((index .Values.deployments 1)).name }}
-  namespace: {{ .Chart.Name }}
+  namespace: {{ .Values.namespace }}
   labels:
     app: {{ ((index .Values.deployments 1)).name }}
     version: {{ ((index .Values.deployments 1)).version }}

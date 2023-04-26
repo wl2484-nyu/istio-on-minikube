@@ -13,7 +13,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 MILLI_SEC_FACTOR = 1000
 MICRO_SEC_FACTOR = 1000000
 
-SVC_NAME = os.getenv("SVC_NAME", "e2e")
+SVC_NAME = os.getenv("SVC_NAME", "toy")
 
 # set B3 headers format
 propagate.set_global_textmap(B3MultiFormat())
@@ -50,7 +50,7 @@ def add_b3_header(f):
           "x-request-id": "022151ab-3a51-9018-9f6d-e63af3b29a8b",
           "x-envoy-attempt-count": "1",
           "x-envoy-internal": "true",
-          "x-forwarded-client-cert": "By=spiffe://cluster.local/ns/e2e/sa/default;Hash=ae960b05fdad696034d38c346fc92f6e5a8405b1de4663c38ca05a6dda09caf5;Subject=\"\";URI=spiffe://cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account",
+          "x-forwarded-client-cert": "By=spiffe://cluster.local/ns/toy/sa/default;Hash=ae960b05fdad696034d38c346fc92f6e5a8405b1de4663c38ca05a6dda09caf5;Subject=\"\";URI=spiffe://cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account",
           "x-b3-traceid": "a53f0d4604621cde3840400b055fb50d",
           "x-b3-spanid": "e694b9d15adf6119",
           "x-b3-parentspanid": "3840400b055fb50d",

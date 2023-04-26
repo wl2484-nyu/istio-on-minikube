@@ -1,3 +1,4 @@
+namespace: e2e
 otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
 
 deployments:
@@ -37,7 +38,7 @@ services:
     targetPort: 5566
 
 ingress:
-  name: e2e
+  name: toy
   rules:
   - host: svc-a.dtp.org
     http:

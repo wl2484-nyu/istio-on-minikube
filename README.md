@@ -161,14 +161,19 @@ helm uninstall $SYS --namespace $NS
 ```
 
 ### Build App Image
+
+#### The Toy App
 ```shell
 PROFILE=e2e-1.1.0-1.1.1
-APP_A=rolldice-A
-APP_B=rolldice-B
+APP_A=rolldice-a
+APP_B=rolldice-b
+DEFAULT_MODULE_NAME=main
+DEFAULT_APP_NAME=app
+DEFAULT_PORT=5566
 
 eval $(minikube -p $PROFILE docker-env)
-docker build -t $APP_A ./app/rolldice
-docker build -t $APP_B ./app/rolldice
+docker build --build-arg DEFAULT_MODULE_NAME=$DEFAULT_MODULE_NAME --build-arg DEFAULT_APP_NAME=$DEFAULT_APP_NAME --build-arg DEFAULT_PORT=$DEFAULT_PORT -t $APP_A ./app/rolldice
+docker build --build-arg DEFAULT_MODULE_NAME=$DEFAULT_MODULE_NAME --build-arg DEFAULT_APP_NAME=$DEFAULT_APP_NAME --build-arg DEFAULT_PORT=$DEFAULT_PORT -t $APP_B ./app/rolldice
 ```
 
 ### Package Sys App
@@ -185,7 +190,7 @@ PACKAGE=`helm package charts/$SYS --destination charts/$SYS/package --namespace 
 NS=e2e
 SYS=e2e
 
-helm upgrade -i $SYS $PACKAGE --namespace $NS -f charts/values.yaml
+helm upgrade -i $SYS $PACKAGE --namespace $NS -f charts/values.toy.yaml
 ```
 
 # Testing
@@ -208,8 +213,8 @@ curl -H "Host: <SERVICE_ENDPOINT>" http://localhost:<PORT>/<API_PATH>
 
 ### Example
 ```shell
-curl -H "Host: svc-1.dtp.org" http://localhost/app1/v1/rolldice
-curl -H "Host: svc-2.dtp.org" http://localhost/app2/v1/rolldice
+curl -H "Host: svc-a.dtp.org" http://localhost/app_a/v1/rolldice
+curl -H "Host: svc-b.dtp.org" http://localhost/app_b/v1/rolldice
 ```
 * No need to specify `PORT` when its value is 80
 
@@ -224,10 +229,10 @@ kubectl port-forward svc/<SERVICE_NAME> -n <NAMESPACE> <LOCAL_PORT>:<CONTAINER_P
 
 ### Example
 ```shell
-kubectl port-forward svc/svc-1 -n e2e 5566:5566
-curl http://localhost:5566/app1/v1/rolldice
-kubectl port-forward svc/svc-2 -n e2e 5567:5566
-curl http://localhost:5567/app2/v1/rolldice
+kubectl port-forward svc/svc-a -n e2e 5566:5566
+curl http://localhost:5566/app_a/v1/rolldice
+kubectl port-forward svc/svc-b -n e2e 5567:5566
+curl http://localhost:5567/app_b/v1/rolldice
 ```
 
 

@@ -16,7 +16,7 @@ from performance_tracer import add_b3_header, trace_performance_async, trace_per
 
 MILLI_SEC_FACTOR = 1000
 
-SVC_NAME = os.getenv("SVC_NAME", "e2e")
+SVC_NAME = os.getenv("SVC_NAME", "toy")
 API_PREFIX = os.getenv("API_PREFIX", "app")
 API_VERSION = os.getenv("API_VERSION", "v1")
 
