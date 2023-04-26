@@ -1,0 +1,9 @@
+fastapi
+requests
+uvicorn
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-instrumentation
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-jaeger
+opentelemetry-propagator-b3

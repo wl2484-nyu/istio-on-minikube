@@ -1,0 +1,84 @@
+namespace: e2e
+otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
+downstream_svcs:
+  a: "svc-b:5566/b/v1,svc-e:5566/e/v1,svc-g:5566/g/v1"
+  b: "svc-c:5566/c/v1,svc-d:5566/d/v1"
+  e: "svc-f:5566/f/v1"
+
+deployments:
+- name: app-a
+  replicas: 1
+  version: v1
+  prefix: /a
+  image:
+    name: svc-a
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
+- name: app-b
+  replicas: 1
+  version: v1
+  prefix: /b
+  image:
+    name: svc-b
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
+
+services:
+- name: svc-a
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: svc-b
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+
+ingress:
+  name: multi-svc-ingress
+  rules:
+  - host: app-a.dtp.org
+    http:
+      paths:
+        - path: /a
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-a
+              port:
+                name: http
+  - host: app-b.dtp.org
+    http:
+      paths:
+        - path: /b
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-b
+              port:
+                name: http
+
+virtualservices:
+- name: vssvca
+  hosts:
+  - "app-a.dtp.org"
+  match:
+  - uri:
+      prefix: /a1
+  - uri:
+      prefix: /a2
+- name: vssvcb
+  hosts:
+  - "app-b.dtp.org"
+  match:
+  - uri:
+      prefix: /b1
+  - uri:
+      prefix: /b2

@@ -1,6 +1,6 @@
 DEFAULT_SYS=multi-svc
 TOY_SYS=toy
-PROFILE=e2e-1.1.0-1.1.1
+PROFILE=e2e-2.0.0-1.1.1
 NS=e2e
 
 DEPLOY_INFRA=$1
@@ -46,7 +46,40 @@ then
 
   if [[ $DEPLOY_APP == "TRUE" ]]
   then
-    echo "NEW BUILD & DEPLOY APP SCRIPTS TO BE ADDED"
+    DEFAULT_MODULE_NAME=main
+    DEFAULT_APP_NAME=app
+    DEFAULT_PORT=5566
+
+    # build app image
+    eval "$(minikube -p $PROFILE docker-env)"
+    for i in a b; do
+      mkdir -p "app/svcs/svc_$i";
+      cp "app/svcs/svc_$i.py" "app/svcs/svc_$i/main.py"
+      cp "app/svcs/performance_tracer.py" "app/svcs/svc_$i/"
+      cp "app/svcs/Dockerfile.template" "app/svcs/svc_$i/Dockerfile"
+      cp "app/svcs/requirements.txt.template" "app/svcs/svc_$i/requirements.txt"
+      docker build --build-arg DEFAULT_MODULE_NAME=$DEFAULT_MODULE_NAME --build-arg DEFAULT_APP_NAME=$DEFAULT_APP_NAME --build-arg DEFAULT_PORT=$DEFAULT_PORT -t "svc-$i" "./app/svcs/svc_$i";
+    done
+
+    # create sys namespace
+    kubectl apply -f "kubernetes/namespace/$NS.yaml"
+
+    # uninstall app
+    helm uninstall "$SYS" --namespace "$NS"
+    sleep 5
+
+    # package sys app
+    mkdir -p "charts/$SYS/package"
+    PACKAGE=$(helm package "charts/$SYS" --destination "charts/$SYS/package" --namespace "$NS" | cut -d':' -f2 | xargs)
+
+    # label node
+    #kubectl label nodes "$PROFILE" node-affinity=true
+
+    helm upgrade -i "$SYS" "$PACKAGE" --namespace "$NS" -f "charts/values.$SYS.yaml"
+
+    # get pods
+    sleep 5
+    kubectl get pods -n "$NS"
   fi
 
 elif [[ $SYS == "$TOY_SYS" ]]
