@@ -3,7 +3,11 @@ otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/t
 downstream_svcs:
   a: "svc-b:5566/b/v1,svc-e:5566/e/v1,svc-g:5566/g/v1"
   b: "svc-c:5566/c/v1,svc-d:5566/d/v1"
-  e: "svc-f:5566/f/v1"
+  c: ""
+  d: ""
+  e: "svc-f:5566/f/v1,svc-d:5566/d/v1"
+  f: ""
+  g: ""
 
 deployments:
 - name: app-a
@@ -24,6 +28,51 @@ deployments:
     tag: latest
   imagePullPolicy: Never
   containerPort: 5566
+- name: app-c
+  replicas: 1
+  version: v1
+  prefix: /c
+  image:
+    name: svc-c
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
+- name: app-d
+  replicas: 1
+  version: v1
+  prefix: /d
+  image:
+    name: svc-d
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
+- name: app-e
+  replicas: 1
+  version: v1
+  prefix: /e
+  image:
+    name: svc-e
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
+- name: app-f
+  replicas: 1
+  version: v1
+  prefix: /f
+  image:
+    name: svc-f
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
+- name: app-g
+  replicas: 1
+  version: v1
+  prefix: /g
+  image:
+    name: svc-g
+    tag: latest
+  imagePullPolicy: Never
+  containerPort: 5566
 
 services:
 - name: svc-a
@@ -34,6 +83,41 @@ services:
     name: http
     targetPort: 5566
 - name: svc-b
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: svc-c
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: svc-d
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: svc-e
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: svc-f
+  type: ClusterIP
+  ports:
+  - port: 5566
+    protocol: TCP
+    name: http
+    targetPort: 5566
+- name: svc-g
   type: ClusterIP
   ports:
   - port: 5566
@@ -64,6 +148,56 @@ ingress:
               name: svc-b
               port:
                 name: http
+  - host: app-c.dtp.org
+    http:
+      paths:
+        - path: /c
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-c
+              port:
+                name: http
+  - host: app-d.dtp.org
+    http:
+      paths:
+        - path: /d
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-d
+              port:
+                name: http
+  - host: app-e.dtp.org
+    http:
+      paths:
+        - path: /e
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-e
+              port:
+                name: http
+  - host: app-f.dtp.org
+    http:
+      paths:
+        - path: /f
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-f
+              port:
+                name: http
+  - host: app-g.dtp.org
+    http:
+      paths:
+        - path: /g
+          pathType: Prefix
+          backend:
+            service:
+              name: svc-g
+              port:
+                name: http
 
 virtualservices:
 - name: vssvca
@@ -74,6 +208,8 @@ virtualservices:
       prefix: /a1
   - uri:
       prefix: /a2
+  - uri:
+      prefix: /a3
 - name: vssvcb
   hosts:
   - "app-b.dtp.org"
@@ -82,3 +218,43 @@ virtualservices:
       prefix: /b1
   - uri:
       prefix: /b2
+- name: vssvcc
+  hosts:
+  - "app-c.dtp.org"
+  match:
+  - uri:
+      prefix: /c1
+  - uri:
+      prefix: /c2
+- name: vssvcd
+  hosts:
+  - "app-d.dtp.org"
+  match:
+  - uri:
+      prefix: /d1
+  - uri:
+      prefix: /d2
+- name: vssvce
+  hosts:
+  - "app-e.dtp.org"
+  match:
+  - uri:
+      prefix: /e1
+  - uri:
+      prefix: /e2
+- name: vssvcf
+  hosts:
+  - "app-f.dtp.org"
+  match:
+  - uri:
+      prefix: /f1
+  - uri:
+      prefix: /f2
+- name: vssvcg
+  hosts:
+  - "app-g.dtp.org"
+  match:
+  - uri:
+      prefix: /g1
+  - uri:
+      prefix: /g2

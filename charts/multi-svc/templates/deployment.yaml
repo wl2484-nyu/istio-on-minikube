@@ -90,3 +90,238 @@ spec:
           value: {{ .Values.downstream_svcs.b }}
         ports:
         - containerPort: {{ ((index .Values.deployments 1)).containerPort }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ ((index .Values.deployments 2)).name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ ((index .Values.deployments 2)).name }}
+    version: {{ ((index .Values.deployments 2)).version }}
+spec:
+  replicas: {{ ((index .Values.deployments 2)).replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ ((index .Values.deployments 2)).name }}
+      version: {{ ((index .Values.deployments 2)).version }}
+  template:
+    metadata:
+      labels:
+        app: {{ ((index .Values.deployments 2)).name }}
+        version: {{ ((index .Values.deployments 1)).version }}
+    spec:
+      containers:
+      - name: {{ ((index .Values.deployments 2)).name }}
+        image: {{ ((index .Values.deployments 2)).image.name }}:{{ ((index .Values.deployments 2)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 2)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: NAMESPACE
+          value: {{ .Values.namespace }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 2)).name }}
+        - name: API_PREFIX
+          value: {{ ((index .Values.deployments 2)).prefix }}
+        - name: API_VERSION
+          value: {{ ((index .Values.deployments 2)).version }}
+        - name: DOWNSTREAM_SVCS
+          value: {{ .Values.downstream_svcs.c }}
+        ports:
+        - containerPort: {{ ((index .Values.deployments 2)).containerPort }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ ((index .Values.deployments 3)).name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ ((index .Values.deployments 3)).name }}
+    version: {{ ((index .Values.deployments 3)).version }}
+spec:
+  replicas: {{ ((index .Values.deployments 3)).replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ ((index .Values.deployments 3)).name }}
+      version: {{ ((index .Values.deployments 3)).version }}
+  template:
+    metadata:
+      labels:
+        app: {{ ((index .Values.deployments 3)).name }}
+        version: {{ ((index .Values.deployments 3)).version }}
+    spec:
+      containers:
+      - name: {{ ((index .Values.deployments 3)).name }}
+        image: {{ ((index .Values.deployments 3)).image.name }}:{{ ((index .Values.deployments 3)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 3)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: NAMESPACE
+          value: {{ .Values.namespace }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 3)).name }}
+        - name: API_PREFIX
+          value: {{ ((index .Values.deployments 3)).prefix }}
+        - name: API_VERSION
+          value: {{ ((index .Values.deployments 3)).version }}
+        - name: DOWNSTREAM_SVCS
+          value: {{ .Values.downstream_svcs.d }}
+        ports:
+        - containerPort: {{ ((index .Values.deployments 3)).containerPort }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ ((index .Values.deployments 4)).name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ ((index .Values.deployments 4)).name }}
+    version: {{ ((index .Values.deployments 4)).version }}
+spec:
+  replicas: {{ ((index .Values.deployments 4)).replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ ((index .Values.deployments 4)).name }}
+      version: {{ ((index .Values.deployments 4)).version }}
+  template:
+    metadata:
+      labels:
+        app: {{ ((index .Values.deployments 4)).name }}
+        version: {{ ((index .Values.deployments 4)).version }}
+    spec:
+      containers:
+      - name: {{ ((index .Values.deployments 4)).name }}
+        image: {{ ((index .Values.deployments 4)).image.name }}:{{ ((index .Values.deployments 4)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 4)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: NAMESPACE
+          value: {{ .Values.namespace }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 4)).name }}
+        - name: API_PREFIX
+          value: {{ ((index .Values.deployments 4)).prefix }}
+        - name: API_VERSION
+          value: {{ ((index .Values.deployments 4)).version }}
+        - name: DOWNSTREAM_SVCS
+          value: {{ .Values.downstream_svcs.e }}
+        ports:
+        - containerPort: {{ ((index .Values.deployments 4)).containerPort }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ ((index .Values.deployments 5)).name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ ((index .Values.deployments 5)).name }}
+    version: {{ ((index .Values.deployments 5)).version }}
+spec:
+  replicas: {{ ((index .Values.deployments 5)).replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ ((index .Values.deployments 5)).name }}
+      version: {{ ((index .Values.deployments 5)).version }}
+  template:
+    metadata:
+      labels:
+        app: {{ ((index .Values.deployments 5)).name }}
+        version: {{ ((index .Values.deployments 5)).version }}
+    spec:
+      containers:
+      - name: {{ ((index .Values.deployments 5)).name }}
+        image: {{ ((index .Values.deployments 5)).image.name }}:{{ ((index .Values.deployments 5)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 5)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: NAMESPACE
+          value: {{ .Values.namespace }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 5)).name }}
+        - name: API_PREFIX
+          value: {{ ((index .Values.deployments 5)).prefix }}
+        - name: API_VERSION
+          value: {{ ((index .Values.deployments 5)).version }}
+        - name: DOWNSTREAM_SVCS
+          value: {{ .Values.downstream_svcs.f }}
+        ports:
+        - containerPort: {{ ((index .Values.deployments 5)).containerPort }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ ((index .Values.deployments 6)).name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ ((index .Values.deployments 6)).name }}
+    version: {{ ((index .Values.deployments 6)).version }}
+spec:
+  replicas: {{ ((index .Values.deployments 6)).replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ ((index .Values.deployments 6)).name }}
+      version: {{ ((index .Values.deployments 6)).version }}
+  template:
+    metadata:
+      labels:
+        app: {{ ((index .Values.deployments 6)).name }}
+        version: {{ ((index .Values.deployments 6)).version }}
+    spec:
+      containers:
+      - name: {{ ((index .Values.deployments 6)).name }}
+        image: {{ ((index .Values.deployments 6)).image.name }}:{{ ((index .Values.deployments 6)).image.tag }}
+        imagePullPolicy: {{ ((index .Values.deployments 6)).imagePullPolicy }}
+        env:
+        - name: nspace
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+          value: {{ .Values.otelExporterJaegerEndpoint }}
+        - name: NAMESPACE
+          value: {{ .Values.namespace }}
+        - name: SVC_NAME
+          value: {{ ((index .Values.services 6)).name }}
+        - name: API_PREFIX
+          value: {{ ((index .Values.deployments 6)).prefix }}
+        - name: API_VERSION
+          value: {{ ((index .Values.deployments 6)).version }}
+        - name: DOWNSTREAM_SVCS
+          value: {{ .Values.downstream_svcs.g }}
+        ports:
+        - containerPort: {{ ((index .Values.deployments 6)).containerPort }}
