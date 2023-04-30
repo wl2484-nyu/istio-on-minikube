@@ -44,3 +44,93 @@ spec:
         port:
           number: {{ ((index .Values.deployments 1)).containerPort }}
         host: {{ ((index .Values.services 1)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ ((index .Values.virtualservices 2)).name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    {{- ((index .Values.virtualservices 2)).hosts | toYaml | nindent 2 }}
+  http:
+  - match:
+      {{- ((index .Values.virtualservices 2)).match | toYaml | nindent 4 }}
+    route:
+    - destination:
+        port:
+          number: {{ ((index .Values.deployments 2)).containerPort }}
+        host: {{ ((index .Values.services 2)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ ((index .Values.virtualservices 3)).name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    {{- ((index .Values.virtualservices 3)).hosts | toYaml | nindent 2 }}
+  http:
+  - match:
+      {{- ((index .Values.virtualservices 3)).match | toYaml | nindent 4 }}
+    route:
+    - destination:
+        port:
+          number: {{ ((index .Values.deployments 3)).containerPort }}
+        host: {{ ((index .Values.services 3)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ ((index .Values.virtualservices 4)).name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    {{- ((index .Values.virtualservices 4)).hosts | toYaml | nindent 2 }}
+  http:
+  - match:
+      {{- ((index .Values.virtualservices 4)).match | toYaml | nindent 4 }}
+    route:
+    - destination:
+        port:
+          number: {{ ((index .Values.deployments 4)).containerPort }}
+        host: {{ ((index .Values.services 4)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ ((index .Values.virtualservices 5)).name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    {{- ((index .Values.virtualservices 5)).hosts | toYaml | nindent 2 }}
+  http:
+  - match:
+      {{- ((index .Values.virtualservices 5)).match | toYaml | nindent 4 }}
+    route:
+    - destination:
+        port:
+          number: {{ ((index .Values.deployments 5)).containerPort }}
+        host: {{ ((index .Values.services 5)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ ((index .Values.virtualservices 6)).name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    {{- ((index .Values.virtualservices 6)).hosts | toYaml | nindent 2 }}
+  http:
+  - match:
+      {{- ((index .Values.virtualservices 6)).match | toYaml | nindent 4 }}
+    route:
+    - destination:
+        port:
+          number: {{ ((index .Values.deployments 6)).containerPort }}
+        host: {{ ((index .Values.services 6)).name }}  # destination hosts to which traffic is being sent. The hosts field applies to both HTTP and TCP services

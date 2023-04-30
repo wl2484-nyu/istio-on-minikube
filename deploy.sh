@@ -1,6 +1,6 @@
 DEFAULT_SYS=multi-svc
 TOY_SYS=toy
-PROFILE=e2e-2.0.0-1.1.2
+PROFILE=e2e-2.1.0-2.1.0
 NS=e2e
 
 DEPLOY_INFRA=$1
@@ -52,7 +52,7 @@ then
 
     # build app image
     eval "$(minikube -p $PROFILE docker-env)"
-    for i in a b; do
+    for i in a b c d e f g; do
       mkdir -p "app/svcs/svc_$i";
       cp "app/svcs/svc_$i.py" "app/svcs/svc_$i/main.py"
       cp "app/svcs/performance_tracer.py" "app/svcs/svc_$i/"
