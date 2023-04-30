@@ -14,7 +14,7 @@
 - [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace** (04/24)
 - [ ] Python decorator: set arbitrary CPU/Mem value to trace
   - Alternative: directly generate fake traces
-- [ ] **Demo app (multi-service) + infra** (04/27)
+- [x] **Demo app (multi-service) + infra** (04/27)
       <br/><img src="screenshots/multi-svc.jpg" width="126" height="168">
 - [ ] **Extract target traces from all traces pulled from Jaeger for aggregation** (04/29)
 - [ ] **Dashboard or Aggregate target traced into row counts** (04/30)
@@ -44,13 +44,34 @@
 
 
 # Architecture
-## latest (v2.0.0)
-![2.0.0](screenshots/architecture-2.0.0.jpg)
+## latest (v2.1.0)
+![2.1.0](screenshots/architecture-2.1.0.jpg)
 
 
 # Trace
-## latest (v1.1.2)
-![1.1.2](screenshots/trace-1.1.2.jpg)
+## latest (v2.1.0)
+
+### svc-a: /a1
+<pre>
+svc-a -> svc-b -> svc-c
+</pre>
+
+![2.1.0](screenshots/trace-a1-2.1.0.jpg)
+
+### svc-a: /a2
+<pre>
+svc-a -> svc-b -> svc-d
+</pre>
+
+![2.1.0](screenshots/trace-a2-2.1.0.jpg)
+
+### svc-a: /a3
+<pre>
+svc-a -> svc-e -> svc-f,svc-d
+      -> svc-g
+</pre>
+
+![2.1.0](screenshots/trace-a3-2.1.0.jpg)
 
 
 # Build & Deployment
@@ -93,7 +114,7 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 Create a Minikube single-node cluster, and set it to active.
 
 ```shell
-PROFILE=e2e-2.0.0-1.1.2
+PROFILE=e2e-2.1.0-2.1.0
 
 # re-create cluster
 minikube delete --all
@@ -107,7 +128,7 @@ minikube profile "$PROFILE"
 Deploy Istio and addon dashboards (such as prometheus, grafana, jaeger, and kiali).
 
 ```shell
-PROFILE=e2e-2.0.0-1.1.2
+PROFILE=e2e-2.1.0-2.1.0
 
 # install istio dashboard addons
 kubectl apply -f kubernetes/addons/prometheus.yaml
@@ -157,7 +178,7 @@ Rollout the latest app release, which include uninstall, build, package, and dep
 
 #### The Multi-Svc App
 ```shell
-PROFILE=e2e-2.0.0-1.1.2
+PROFILE=e2e-2.1.0-2.1.0
 DEFAULT_MODULE_NAME=main
 DEFAULT_APP_NAME=app
 DEFAULT_PORT=5566
