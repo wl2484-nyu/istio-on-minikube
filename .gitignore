@@ -134,4 +134,4 @@ dmypy.json
 # app specific
 poc/e2e/basic_trace.py
 poc/e2e/app/Makefile
-app/svcs/svc_*
+app/svcs/svc_*/*
