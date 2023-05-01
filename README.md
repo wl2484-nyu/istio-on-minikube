@@ -1,7 +1,7 @@
 # Per Request Type Performance Anomaly Detection
 
 ## Progress
-> Latest Update: `04/26/23`
+> Latest Update: `04/30/23`
 
 ### Study/Design (Due: 04/29)
 - [x] Infrastructure: Minikube + Istio + Toy App
@@ -22,6 +22,7 @@
   - svc1_f1,svc1_f2,svc1_f3,total_cpu_time,peak_mem_usage
   - svc1,svc2,total_cpu_time,peak_mem_usage
   - svc1_f1,svc1_f2,svc2_f1,total_cpu_time,peak_mem_usage
+- [x] **Overhead estimation** (04/30)
 
 ### E2E (Due: 04/30)
 - [ ] Scripts to carry out the demo scenario
@@ -114,7 +115,7 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 Create a Minikube single-node cluster, and set it to active.
 
 ```shell
-PROFILE=e2e-2.1.0-2.1.0
+PROFILE=e2e-2.1.1-2.1.0
 
 # re-create cluster
 minikube delete --all
@@ -128,7 +129,7 @@ minikube profile "$PROFILE"
 Deploy Istio and addon dashboards (such as prometheus, grafana, jaeger, and kiali).
 
 ```shell
-PROFILE=e2e-2.1.0-2.1.0
+PROFILE=e2e-2.1.1-2.1.0
 
 # install istio dashboard addons
 kubectl apply -f kubernetes/addons/prometheus.yaml
@@ -178,7 +179,7 @@ Rollout the latest app release, which include uninstall, build, package, and dep
 
 #### The Multi-Svc App
 ```shell
-PROFILE=e2e-2.1.0-2.1.0
+PROFILE=e2e-2.1.1-2.1.0
 DEFAULT_MODULE_NAME=main
 DEFAULT_APP_NAME=app
 DEFAULT_PORT=5566
