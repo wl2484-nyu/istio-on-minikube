@@ -210,12 +210,6 @@ virtualservices:
       prefix: /a2
   - uri:
       prefix: /a3
-  - uri:
-      prefix: /a1n
-  - uri:
-      prefix: /a2n
-  - uri:
-      prefix: /a3n
 - name: vssvcb
   hosts:
   - "app-b.dtp.org"
@@ -224,10 +218,6 @@ virtualservices:
       prefix: /b1
   - uri:
       prefix: /b2
-  - uri:
-      prefix: /b1n
-  - uri:
-      prefix: /b2n
 - name: vssvcc
   hosts:
   - "app-c.dtp.org"
@@ -236,10 +226,6 @@ virtualservices:
       prefix: /c1
   - uri:
       prefix: /c2
-  - uri:
-      prefix: /c1n
-  - uri:
-      prefix: /c2n
 - name: vssvcd
   hosts:
   - "app-d.dtp.org"
@@ -248,10 +234,6 @@ virtualservices:
       prefix: /d1
   - uri:
       prefix: /d2
-  - uri:
-      prefix: /d1n
-  - uri:
-      prefix: /d2n
 - name: vssvce
   hosts:
   - "app-e.dtp.org"
@@ -260,10 +242,6 @@ virtualservices:
       prefix: /e1
   - uri:
       prefix: /e2
-  - uri:
-      prefix: /e1n
-  - uri:
-      prefix: /e2n
 - name: vssvcf
   hosts:
   - "app-f.dtp.org"
@@ -272,10 +250,6 @@ virtualservices:
       prefix: /f1
   - uri:
       prefix: /f2
-  - uri:
-      prefix: /f1n
-  - uri:
-      prefix: /f2n
 - name: vssvcg
   hosts:
   - "app-g.dtp.org"
@@ -284,7 +258,3 @@ virtualservices:
       prefix: /g1
   - uri:
       prefix: /g2
-  - uri:
-      prefix: /g1n
-  - uri:
-      prefix: /g2n
