@@ -5,7 +5,7 @@ from random import randint, seed
 from fastapi import FastAPI, Request
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
-from performance_tracer import add_b3_header, trace_performance_async, trace_performance_sync
+from performance_tracer import add_b3_header, trace_performance_async
 
 MILLI_SEC_FACTOR = 1000
 
