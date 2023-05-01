@@ -1,9 +1,9 @@
 namespace: e2e
 otelExporterJaegerEndpoint: http://jaeger-collector.istio-system.svc:14268/api/traces
 downstream_svcs:
-  a: "svc-b:5566/b/v1,svc-e:5566/e/v1,svc-g:5566/g/v1"
+  a: "svc-b:5566/b/v1,svc-c:5566/c/v1,svc-e:5566/e/v1,svc-g:5566/g/v1"
   b: "svc-c:5566/c/v1,svc-d:5566/d/v1"
-  c: ""
+  c: "svc-e:5566/e/v1"
   d: ""
   e: "svc-f:5566/f/v1,svc-d:5566/d/v1"
   f: ""
@@ -210,6 +210,8 @@ virtualservices:
       prefix: /a2
   - uri:
       prefix: /a3
+  - uri:
+      prefix: /a4
 - name: vssvcb
   hosts:
   - "app-b.dtp.org"
