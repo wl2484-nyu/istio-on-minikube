@@ -32,6 +32,15 @@ async def c1(request: Request):
     return "c1={}".format(n)
 
 
+@sub_app.get("/c1n")
+@add_b3_header
+async def c1n(request: Request):
+    t = time.time()
+    seed(t % 1 * 1000)
+    n = randint(1, 1000)
+    return "c1n={}".format(n)
+
+
 @sub_app.get("/c2")
 @add_b3_header
 @trace_performance_async
@@ -40,3 +49,12 @@ async def c2(request: Request):
     seed(t % 1 * 1000)
     n = randint(1, 1000)
     return "c2={}".format(n)
+
+
+@sub_app.get("/c2n")
+@add_b3_header
+async def c2n(request: Request):
+    t = time.time()
+    seed(t % 1 * 1000)
+    n = randint(1, 1000)
+    return "c2n={}".format(n)
