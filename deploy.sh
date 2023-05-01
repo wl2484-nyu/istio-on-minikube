@@ -34,6 +34,19 @@ then
   kubectl patch svc kiali -n istio-system -p '{"spec": {"type": "NodePort"}}'
   #minikube service kiali -n istio-system --url
 
+  # install eck
+  kubectl create -f https://download.elastic.co/downloads/eck/2.7.0/crds.yaml
+  kubectl apply -f https://download.elastic.co/downloads/eck/2.7.0/operator.yaml
+
+  #https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-deploy-elasticsearch.html
+  kubectl apply -f kubernetes/addons/elasticsearch.yaml
+  PASSWORD=$(kubectl get secret elasticsearch-es-elastic-user -n elastic-system -o go-template='{{.data.elastic | base64decode}}');echo "elastic:$PASSWORD";curl -u "elastic:$PASSWORD" -k "https://localhost:9200"
+  #kubectl port-forward service/elasticsearch-es-http 9200 -n elastic-system
+
+  #https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-deploy-kibana.html
+  kubectl apply -f kubernetes/addons/kibana.yaml
+  #kubectl port-forward service/kibana-kb-http 5601 -n elastic-system
+
   # enable addons
   minikube -p "$PROFILE" addons enable dashboard
   minikube -p "$PROFILE" addons enable metrics-server

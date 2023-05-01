@@ -89,8 +89,8 @@ The all-in-one scripts `deploy.sh` provides toggles to support both infra and ap
 
 2. Enlarge CPU & Memory of Minikube to align with Istio's requirements.
    ```shell
-   minikube config set cpus 4
-   minikube config set memory 10240
+   minikube config set cpus 6
+   minikube config set memory 12288
    cat ~/.minikube/config/config.json
    ```
    > https://stackoverflow.com/questions/52199737/minikube-default-cpu-memory
