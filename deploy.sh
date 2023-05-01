@@ -53,6 +53,7 @@ then
     # build app image
     eval "$(minikube -p $PROFILE docker-env)"
     for i in a b c d e f g; do
+      rm -rf "app/svcs/svc_$i/";
       mkdir -p "app/svcs/svc_$i";
       cp "app/svcs/svc_$i.py" "app/svcs/svc_$i/main.py"
       cp "app/svcs/performance_tracer.py" "app/svcs/svc_$i/"
@@ -69,6 +70,7 @@ then
     sleep 5
 
     # package sys app
+    rm -rf "charts/$SYS/package/"
     mkdir -p "charts/$SYS/package"
     PACKAGE=$(helm package "charts/$SYS" --destination "charts/$SYS/package" --namespace "$NS" | cut -d':' -f2 | xargs)
 
