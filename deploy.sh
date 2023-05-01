@@ -1,6 +1,6 @@
 DEFAULT_SYS=multi-svc
 TOY_SYS=toy
-PROFILE=e2e-2.1.0-2.1.0
+PROFILE=e2e-2.1.1-2.1.0
 NS=e2e
 
 DEPLOY_INFRA=$1
