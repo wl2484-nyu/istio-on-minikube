@@ -13,6 +13,14 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 MILLI_SEC_FACTOR = 1000
 MICRO_SEC_FACTOR = 1000000
 
+STR_SUMMARY = '_summary'
+STR_PM = '_performance_metrics'
+STR_FUNC_NAME = 'function.name'
+STR_CPU_TIME = 'cpu.ms'
+STR_EXEC_TIME = 'exec.ms'
+STR_PEAK_MEM = 'peak_mem.kb'
+STR_PEAK_MEM_SUM = 'peak_mem_sum.kb'
+
 SVC_NAME = os.getenv("SVC_NAME", "svcs")
 
 # set B3 headers format
@@ -58,7 +66,7 @@ def add_b3_header(f):
         }
         """
         ctx = B3MultiFormat().extract(dict(request.headers))
-        with tracer.start_as_current_span(f.__name__ + "_summary", context=ctx):
+        with tracer.start_as_current_span(f.__name__ + STR_SUMMARY, context=ctx):
             return await f(*args, **kwargs)
 
     return inner
@@ -76,8 +84,8 @@ def trace_performance_sync(f):
     @wraps(f)
     def inner(*args, **kwargs):
         request = kwargs.get('request')
-        with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
-            span.set_attribute("function.name", f.__name__)
+        with tracer.start_as_current_span(f.__name__ + STR_PM, context=context.get_current()) as span:
+            span.set_attribute(STR_FUNC_NAME, f.__name__)
 
             flag = tracemalloc.is_tracing()
             if not flag:
@@ -93,9 +101,9 @@ def trace_performance_sync(f):
             if not flag:
                 tracemalloc.stop()
 
-            span.set_attribute("cpu.ms", cpu_time * MILLI_SEC_FACTOR)
-            span.set_attribute("exec.ms", exec_time * MILLI_SEC_FACTOR)
-            span.set_attribute("peak_mem.kb", bytes_to_kb(peak_mem))
+            span.set_attribute(STR_CPU_TIME, cpu_time * MILLI_SEC_FACTOR)
+            span.set_attribute(STR_EXEC_TIME, exec_time * MILLI_SEC_FACTOR)
+            span.set_attribute(STR_PEAK_MEM, bytes_to_kb(peak_mem))
             return r
 
     return inner
@@ -104,8 +112,8 @@ def trace_performance_sync(f):
 def trace_performance_async(f):
     @wraps(f)
     async def inner(*args, **kwargs):
-        with tracer.start_as_current_span(f.__name__ + "_performance_metrics", context=context.get_current()) as span:
-            span.set_attribute("function.name", f.__name__)
+        with tracer.start_as_current_span(f.__name__ + STR_PM, context=context.get_current()) as span:
+            span.set_attribute(STR_FUNC_NAME, f.__name__)
 
             flag = tracemalloc.is_tracing()
             if not flag:
@@ -121,9 +129,9 @@ def trace_performance_async(f):
             if not flag:
                 tracemalloc.stop()
 
-            span.set_attribute("cpu.ms", cpu_time * MILLI_SEC_FACTOR)
-            span.set_attribute("exec.ms", exec_time * MILLI_SEC_FACTOR)
-            span.set_attribute("peak_mem.kb", bytes_to_kb(peak_mem))
+            span.set_attribute(STR_CPU_TIME, cpu_time * MILLI_SEC_FACTOR)
+            span.set_attribute(STR_EXEC_TIME, exec_time * MILLI_SEC_FACTOR)
+            span.set_attribute(STR_PEAK_MEM, bytes_to_kb(peak_mem))
             return r
 
     return inner

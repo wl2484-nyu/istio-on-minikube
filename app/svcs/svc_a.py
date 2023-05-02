@@ -15,7 +15,7 @@ NS = os.getenv("NS", "e2e")
 SVC_NAME = os.getenv("SVC_NAME", "svcs")
 API_PREFIX = os.getenv("API_PREFIX", "/app")
 API_VERSION = os.getenv("API_VERSION", "v1")
-DOWNSTREAM_SVCS = os.getenv("DOWNSTREAM_SVCS", "svc-b:5566/b/v1,svc-e:5566/e/v1,svc-g:5566/g/v1").split(",")
+DOWNSTREAM_SVCS = os.getenv("DOWNSTREAM_SVCS", "svc-b:5566/b/v1,svc-c:5566/c/v1,svc-e:5566/e/v1,svc-g:5566/g/v1").split(",")
 
 URL_TEMPLATE = "http://{}.{}.svc.cluster.local:{}"
 # URL_TEMPLATE = "http://0.0.0.0/{}"
@@ -77,9 +77,6 @@ async def a2(request: Request):
     url = "{}/b2".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1]))
     res = propagate_and_get_response(url,
                                      headers=request.headers)  # carry existing headers to include children spans in the trace
-    # print("{}/b1".format(URL_TEMPLATE.format(chunks[1])))
-    # res = requests.get("{}/b1".format(URL_TEMPLATE.format(chunks[1])),
-    #                    headers={"Host": "app-b.dtp.org"}, timeout=TIMEOUT_SEC)
     return "a2={} : {}".format(n, res.json())
 
 
@@ -94,9 +91,6 @@ async def a2n(request: Request):
     url = "{}/b2n".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1]))
     res = propagate_and_get_response(url,
                                      headers=request.headers)  # carry existing headers to include children spans in the trace
-    # print("{}/b1".format(URL_TEMPLATE.format(chunks[1])))
-    # res = requests.get("{}/b1".format(URL_TEMPLATE.format(chunks[1])),
-    #                    headers={"Host": "app-b.dtp.org"}, timeout=TIMEOUT_SEC)
     return "a2n={} : {}".format(n, res.json())
 
 
@@ -109,9 +103,9 @@ async def a3(request: Request):  # concurrent calls
     n = randint(1, 1000)
 
     urls = list()
-    chunks = DOWNSTREAM_SVCS[1].split(":")
-    urls.append("{}/e1".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
     chunks = DOWNSTREAM_SVCS[2].split(":")
+    urls.append("{}/e1".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
+    chunks = DOWNSTREAM_SVCS[3].split(":")
     urls.append("{}/g1".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
 
     args = [(url, request.headers) for url in urls]
@@ -133,9 +127,9 @@ async def a3n(request: Request):  # concurrent calls
     n = randint(1, 1000)
 
     urls = list()
-    chunks = DOWNSTREAM_SVCS[1].split(":")
-    urls.append("{}/e1n".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
     chunks = DOWNSTREAM_SVCS[2].split(":")
+    urls.append("{}/e1n".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
+    chunks = DOWNSTREAM_SVCS[3].split(":")
     urls.append("{}/g1n".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1])))
 
     args = [(url, request.headers) for url in urls]
@@ -147,3 +141,18 @@ async def a3n(request: Request):  # concurrent calls
         for url in urls:
             fts.append(executor.submit(propagate_and_get_response, url, request.headers))
         return "a3n={} : {}".format(n, "; ".join([future.result().json() for future in futures.as_completed(fts)]))
+
+
+@sub_app.get("/a4")
+@add_b3_header
+@trace_performance_async
+async def a4(request: Request):
+    t = time.time()
+    seed(t % 1 * 1000)
+    n = randint(1, 1000)
+
+    chunks = DOWNSTREAM_SVCS[1].split(":")
+    url = "{}/c2skip".format(URL_TEMPLATE.format(chunks[0], NS, chunks[1]))
+    res = propagate_and_get_response(url, headers=request.headers)  # carry existing headers to include children spans in the trace
+    return "a4={} : {}".format(n, res.json())
+
