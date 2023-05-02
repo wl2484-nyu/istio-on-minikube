@@ -1,35 +1,32 @@
 # Per Request Type Performance Anomaly Detection
 
 ## Progress
-> Latest Update: `04/30/23`
+> Latest Update: `05/02/23`
 
-### Study/Design (Due: 04/29)
+### Study/Design
 - [x] Infrastructure: Minikube + Istio + Toy App
 - [x] **Demo app scenario / call-path design** (04/24)
 - [x] **Pull service traces from Jaeger**
-- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation** (04/29)
+- [x] **Extract target traces from all traces pulled from Jaeger for aggregation** (05/01)
 
-### Implementation (Due: 04/30)
+### Implementation
 - [x] Consolidate manual operations into deployment scripts with Helm
 - [x] **Python decorator: log per-function's (1) total CPU time, (2) peak memory usage, (3) function name to trace** (04/24)
 - [ ] Python decorator: set arbitrary CPU/Mem value to trace
   - Alternative: directly generate fake traces
 - [x] **Demo app (multi-service) + infra** (04/27)
       <br/><img src="screenshots/multi-svc.jpg" width="126" height="168">
-- [ ] **Extract target traces from all traces pulled from Jaeger for aggregation** (04/29)
-- [ ] **Dashboard or Aggregate target traced into row counts** (04/30)
+- [x] **Extract target traces from all traces pulled from Jaeger for aggregation** (05/01)
+- [x] **Dashboard or Aggregate target traced into row counts** (05/01)
   - svc1,total_cpu_time,peak_mem_usage
   - svc1_f1,svc1_f2,svc1_f3,total_cpu_time,peak_mem_usage
   - svc1,svc2,total_cpu_time,peak_mem_usage
   - svc1_f1,svc1_f2,svc2_f1,total_cpu_time,peak_mem_usage
 - [x] **Overhead estimation** (04/30)
 
-### E2E (Due: 04/30)
-- [ ] Scripts to carry out the demo scenario
-  - [ ] curl APIs
-  - [ ] Pull out traces from Jaeger
-  - [ ] Extract target traces
-  - [ ] Dashboard or Aggregate traces into row counts
+### Experiment Results
+- [ ] Overhead test
+- [ ] Demo aggregation & anomaly results
 
 ### Presentation: Poster & Report
 - [ ] Poster (Due: 05/03)
