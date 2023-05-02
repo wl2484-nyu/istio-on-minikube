@@ -32,7 +32,7 @@
 - [ ] Poster (Due: 05/03)
   - [ ] Abstract
   - [ ] Introduction
-  - [ ] Related Work
+  - [ ] **Related Work**
   - [ ] Methodology
   - [ ] Evaluations
   - [ ] Discussions
@@ -42,8 +42,8 @@
 
 
 # Architecture
-## latest (v2.1.1)
-![2.1.1](screenshots/architecture-2.1.1.jpg)
+## latest (v2.1.0)
+![2.1.0](screenshots/architecture-2.1.0.jpg)
 
 
 # Trace
@@ -70,13 +70,6 @@ svc-a -> svc-e -> svc-f,svc-d
 </pre>
 
 ![2.1.0](screenshots/trace-a3-2.1.0.jpg)
-
-### svc-a: /a4
-<pre>
-svc-a -> svc-c -> svc-e
-</pre>
-
-![2.1.0](screenshots/trace-a4-2.1.0.jpg)
 
 
 # Build & Deployment
