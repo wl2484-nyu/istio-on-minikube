@@ -19,6 +19,7 @@ STR_FUNC_NAME = 'function.name'
 STR_CPU_TIME = 'cpu.ms'
 STR_EXEC_TIME = 'exec.ms'
 STR_PEAK_MEM = 'peak_mem.kb'
+STR_PEAK_MEM_SUM = 'peak_mem_sum.kb'
 
 SVC_NAME = os.getenv("SVC_NAME", "svcs")
 

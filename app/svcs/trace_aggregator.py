@@ -1,11 +1,16 @@
 #!/usr/bin/python
 import argparse
 import json
+import statistics
 import sys
 import time
+from collections import defaultdict
+from itertools import groupby
 
 import requests
-from performance_tracer import STR_SUMMARY, STR_PM, STR_FUNC_NAME, STR_CPU_TIME, STR_EXEC_TIME, STR_PEAK_MEM
+
+from performance_tracer import STR_SUMMARY, STR_PM, STR_FUNC_NAME, STR_CPU_TIME, STR_EXEC_TIME, STR_PEAK_MEM, \
+    STR_PEAK_MEM_SUM
 
 _DEBUG = False
 
@@ -24,8 +29,30 @@ STR_DURATION = 'duration'
 STR_TAGS = 'tags'
 STR_KEY = 'key'
 STR_VALUE = 'value'
+STR_REQ_TYPE = 'request_type'
+STR_AVG_DURATION = 'avg_duration'
+STR_STD_DURATION = 'std_duration'
+STR_AVG_CPU_TIME = 'avg_cpu_time'
+STR_STD_CPU_TIME = 'std_cpu_time'
+STR_AVG_PEAK_MEM = 'avg_peak_mem'
+STR_STD_PEAK_MEM = 'std_peak_mem'
 
 JAEGER_ENDPOINT_TEMPLATE = "{}/jaeger/api/traces?service={}"
+PER_REQUEST_TYPE_SUMMARY_KEYS = [
+    STR_REQ_TYPE,
+    'count',
+    'max_duration',
+    STR_AVG_DURATION,
+    'min_duration',
+    STR_STD_DURATION,
+    'max_cpu_time',
+    STR_AVG_CPU_TIME,
+    'min_cpu_time',
+    STR_STD_CPU_TIME,
+    'max_peak_mem',
+    STR_AVG_PEAK_MEM,
+    'min_peak_mem',
+    STR_STD_PEAK_MEM]
 
 
 def get_traces_from_jaeger(jaeger_endpoint, svc, start_time, end_time, limit=10000):
@@ -110,21 +137,23 @@ def combine_summaries(summaries):
     if len(summaries) == 0:
         return dict()
 
-    key = ":".join(sorted(list(map(lambda s: s[STR_KEY], summaries))))
+    key = " -> ".join(sorted(list(map(lambda s: s[STR_KEY], summaries))))
     duration = sum(list(map(lambda s: s[STR_DURATION], summaries)))
     cpu_time = sum(list(map(lambda s: s[STR_CPU_TIME], summaries)))
     exec_time = sum(list(map(lambda s: s[STR_EXEC_TIME], summaries)))
-    peak_mem = sum(list(map(lambda s: s[STR_PEAK_MEM], summaries))) # sum-up peak memory for concurrent calls
+    peak_mem = max(list(map(lambda s: s[STR_PEAK_MEM], summaries)))
+    peak_mem_sum = sum(list(map(lambda s: s[STR_PEAK_MEM], summaries)))  # sum-up peak memory for concurrent calls
     return dict({
         STR_KEY: key,
         STR_DURATION: duration,
         STR_CPU_TIME: cpu_time,
         STR_EXEC_TIME: exec_time,
-        STR_PEAK_MEM: peak_mem
+        STR_PEAK_MEM: peak_mem,
+        STR_PEAK_MEM_SUM: peak_mem_sum
     })
 
 
-def get_summary_paths(spans):
+def get_tracing_paths(spans):
     if len(spans) == 0:
         return list()
 
@@ -132,11 +161,12 @@ def get_summary_paths(spans):
     for span in spans:
         if span[STR_OPNAME].endswith(STR_SUMMARY):
             summary = dict({
-                STR_KEY: "{}:{}".format(span[STR_SVCNAME], span[STR_OPNAME]),
+                STR_KEY: "{}:{}".format(span[STR_SVCNAME], span[STR_OPNAME].replace(STR_SUMMARY, "")),
                 STR_DURATION: span[STR_DURATION],
                 STR_CPU_TIME: 0,
                 STR_EXEC_TIME: 0,
-                STR_PEAK_MEM: 0
+                STR_PEAK_MEM: 0,
+                STR_PEAK_MEM_SUM: 0
             })
             if len(span[STR_SPANS]) > 0:
                 assert span[STR_SPANS][0][STR_OPNAME].endswith(STR_PM)
@@ -151,7 +181,7 @@ def get_summary_paths(spans):
     for span in spans:
         if span[STR_OPNAME].endswith(STR_SUMMARY):
             continue
-        for path in get_summary_paths(span[STR_SPANS]):
+        for path in get_tracing_paths(span[STR_SPANS]):
             if len(summary) > 0:
                 path = [summary] + path
             if len(path) > 0:
@@ -160,6 +190,63 @@ def get_summary_paths(spans):
     if len(paths) == 0 and len(summary) > 0:
         paths.append([summary])
     return paths
+
+
+def output_per_request_type_summaries(path_summaries):
+    groups = defaultdict(list)
+    for key, group in groupby(path_summaries, lambda d: d[STR_KEY]):
+        groups[key].extend(list(group))
+
+    group_summaries = list()
+    for key, group in groups.items():
+        gs = [
+            key, len(group), max([d[STR_DURATION] for d in group]),
+            round(sum([d[STR_DURATION] for d in group]) / len(group)),
+            min([d[STR_DURATION] for d in group]),
+            statistics.stdev([d[STR_DURATION] for d in group]) if len(group) > 1 else 0,
+            # milli-sec to micro-sec
+            round(max([d[STR_CPU_TIME] for d in group])) * 1000,
+            round(sum([d[STR_CPU_TIME] for d in group]) / len(group)) * 1000,
+            round(min([d[STR_CPU_TIME] for d in group])) * 1000,
+            statistics.stdev([d[STR_CPU_TIME] * 1000 for d in group]) if len(group) > 1 else 0,
+            max([d[STR_PEAK_MEM] for d in group]),
+            sum([d[STR_PEAK_MEM] for d in group]) / len(group),
+            min([d[STR_PEAK_MEM] for d in group]),
+            statistics.stdev([d[STR_PEAK_MEM] for d in group]) if len(group) > 1 else 0]
+        group_summaries.append(gs)
+
+    group_summary_dict = dict()
+    print(",".join(PER_REQUEST_TYPE_SUMMARY_KEYS))
+    for gs in group_summaries:
+        assert len(PER_REQUEST_TYPE_SUMMARY_KEYS) == len(gs)
+        print(",".join(list(map(lambda e: str(e), gs))))
+
+        d = dict(zip(PER_REQUEST_TYPE_SUMMARY_KEYS, gs))
+        key = d.pop(PER_REQUEST_TYPE_SUMMARY_KEYS[0])
+        group_summary_dict[key] = d
+    return group_summary_dict
+
+
+def get_anomalies(individual_summaries, group_summaries, metric_name, metric_avg_name, metric_std_name):
+    anomaly_table = list()
+    anomaly_table.append("{},{},{}".format(STR_REQ_TYPE, metric_name, STR_TRACEID))
+    for s in individual_summaries:
+        if (group_summaries[s[STR_KEY]][metric_std_name] != 0 and
+            s[metric_name] > (group_summaries[s[STR_KEY]][metric_avg_name] + group_summaries[s[STR_KEY]][
+                    metric_std_name] * 2)) or _DEBUG:
+            anomaly_table.append("{},{},{}".format(s[STR_KEY], s[metric_name], s[STR_TRACEID]))
+    anomaly_table.sort()
+    return anomaly_table
+
+
+def output_per_request_type_anomalies(individual_summaries, group_summaries):
+    for metric_name, metric_avg_name, metric_std_name in [(STR_DURATION, STR_AVG_DURATION, STR_STD_DURATION),
+                                                          (STR_CPU_TIME, STR_AVG_CPU_TIME, STR_STD_CPU_TIME),
+                                                          (STR_PEAK_MEM, STR_AVG_PEAK_MEM, STR_STD_PEAK_MEM)]:
+        print("== {} ANOMALIES ==".format(metric_name.upper()))
+        for anomaly in get_anomalies(individual_summaries, group_summaries, metric_name, metric_avg_name,
+                                     metric_std_name):
+            print(anomaly)
 
 
 def main():
@@ -189,12 +276,18 @@ def main():
     else:
         sys.exit('please specify --jaeger-endpoint or --input')
 
-    trace_count = len(traces[STR_DATA])
+    path_summaries = list()
     for trace in traces[STR_DATA]:
+        trace_id = trace[STR_TRACEID]
         trace_tree = parse_trace_tree(trace)
-        paths = get_summary_paths(trace_tree[STR_SPANS])    # assumed 1st-level of the trace_tree is not a summary
+        paths = get_tracing_paths(trace_tree[STR_SPANS])  # assumed 1st-level of the trace_tree is not a summary
+
         for path in paths:
-            print(path)
+            summary = combine_summaries(path)
+            summary[STR_TRACEID] = trace_id
+            path_summaries.append(summary)
+    group_summaries = output_per_request_type_summaries(path_summaries)
+    output_per_request_type_anomalies(path_summaries, group_summaries)
 
 
 if __name__ == '__main__':
