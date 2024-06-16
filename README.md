@@ -1,7 +1,7 @@
 # Path-Based Performance Profiling with Distributed Tracing
 This is a prototype built on top of [Minikube](https://minikube.sigs.k8s.io/docs/) that enables path-based performance profiling in a microservice-based distributed system using the [Istio](https://istio.io/) framework and [OpenTelemetry](https://opentelemetry.io/).
 
-[[Poster] Path-Based Performance Profiling with Distributed Tracing.pdf](https://github.com/wl2484/istio-on-minikube/files/12555508/Poster.Path-Based.Performance.Profiling.with.Distributed.Tracing.pdf)
+[[Poster] Path-Based Performance Profiling with Distributed Tracing](https://docs.google.com/presentation/d/1sM03jbS6KF5OK67oVDne3wqU5p-4OC1o/edit?usp=sharing&ouid=101555108023297475560&rtpof=true&sd=true)
 * Contributions in team:
   * Proposed the path-based profiler design
   * Built-up the microservice-based showcase systems (e.g. infra + app)
